@@ -83,8 +83,15 @@ opt_in_rules:
   - private_swiftui_state
 
 file_header:
-  # Comments, except for the required and standard ones at the top of a Package.swift file. The aim of this rule is to make sure that we delete the Xcode-generated boilerplate comment.
-  forbidden_pattern: //(?! (swift-tools-version:|The swift-tools-version declares the minimum version of Swift required to build this package\.))
+  # The aim of this rule is to make sure that we delete the Xcode-generated boilerplate comment, which looks like
+  #
+  # //
+  # //  File.swift
+  # //  AblyChat
+  # //
+  # //  Created by Lawrence Forooghian on 15/08/2024.
+  # //
+  forbidden_pattern: //  Created by
 
 identifier_name:
   &no_length_checks # We disable the length checks, for the same reason we disable the rules of type "metrics".
