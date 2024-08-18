@@ -3,7 +3,8 @@ import Foundation
 public typealias MessageHeaders = Headers
 public typealias MessageMetadata = Metadata
 
-public struct Message: Sendable {
+public struct Message: Sendable, Identifiable {
+    public var id: UUID
     public var timeserial: String
     public var clientID: String
     public var roomID: String
@@ -12,7 +13,8 @@ public struct Message: Sendable {
     public var metadata: MessageMetadata
     public var headers: MessageHeaders
 
-    public init(timeserial: String, clientID: String, roomID: String, text: String, createdAt: Date, metadata: MessageMetadata, headers: MessageHeaders) {
+    public init(id: UUID, timeserial: String, clientID: String, roomID: String, text: String, createdAt: Date, metadata: MessageMetadata, headers: MessageHeaders) {
+        self.id = id
         self.timeserial = timeserial
         self.clientID = clientID
         self.roomID = roomID

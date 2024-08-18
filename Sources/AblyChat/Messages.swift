@@ -1,6 +1,7 @@
 import Ably
 
 public protocol Messages: AnyObject, Sendable, EmitsDiscontinuities {
+    var log: [Message] { get }
     func subscribe(bufferingPolicy: BufferingPolicy) -> MessageSubscription
     func get(options: QueryOptions) async throws -> any PaginatedResult<Message>
     func send(params: SendMessageParams) async throws -> Message
@@ -51,24 +52,24 @@ public struct QueryOptionsWithoutDirection: Sendable {
 }
 
 // Currently a copy-and-paste of `Subscription`; see notes on that one. For `MessageSubscription`, my intention is that the `BufferingPolicy` passed to `subscribe(bufferingPolicy:)` will also define what the `MessageSubscription` does with messages that are received _before_ the user starts iterating over the sequence (this buffering will allow us to implement the requirement that there be no discontinuity between the the last message returned by `getPreviousMessages` and the first element you get when you iterate).
-public struct MessageSubscription: Sendable, AsyncSequence {
+public struct MessageSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
     public typealias Element = Message
 
-    public init<T: AsyncSequence>(mockAsyncSequence _: T) where T.Element == Element {
-        fatalError("Not yet implemented")
+    var mockAsyncSequence: any AsyncSequence & AsyncIteratorProtocol & Sendable
+    
+    public init<T: AsyncSequence>(_ mock: T) where T.Element == Element {
+        self.mockAsyncSequence = mock as! any Sendable & AsyncIteratorProtocol & AsyncSequence
     }
 
     public func getPreviousMessages(params _: QueryOptionsWithoutDirection) async throws -> any PaginatedResult<Message> {
         fatalError("Not yet implemented")
     }
-
-    public struct AsyncIterator: AsyncIteratorProtocol {
-        public mutating func next() async -> Element? {
-            fatalError("Not implemented")
-        }
+    
+    public mutating func next() async -> Element? {
+        try! await mockAsyncSequence.next() as! MessageSubscription.Element
     }
-
-    public func makeAsyncIterator() -> AsyncIterator {
-        fatalError("Not implemented")
+    
+    public func makeAsyncIterator() -> Self {
+        self
     }
 }
