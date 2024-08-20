@@ -39,6 +39,9 @@ And, actually more importantly, we want to be sure that the SDK can be integrate
 
 ### Multiple `Package.swift` files
 
-We have a separate manifest file, `Package@swift-6.swift`, which a Swift compiler supporting Swift 6 will use instead of `Package.swift` (see [documentation of this SPM feature](https://github.com/swiftlang/swift-package-manager/blob/74f06f8a7fd6b4c729e474dee34db66319d90759/Documentation/Usage.md#version-specific-manifest-selection)). This file only exists because if you try to use `.enableUpcomingFeature` for a feature that is enabled by default in Swift 6, you’ll get an error `error: upcoming feature 'BareSlashRegexLiterals' is already enabled as of Swift version 6`. (I don’t know if there’s a better way of handling this.)
+We have a separate manifest file, `Package@swift-6.swift`, which a Swift compiler supporting Swift 6 will use instead of `Package.swift` (see [documentation of this SPM feature](https://github.com/swiftlang/swift-package-manager/blob/74f06f8a7fd6b4c729e474dee34db66319d90759/Documentation/Usage.md#version-specific-manifest-selection)). This file exists for two reasons:
+
+1. To tell the compiler “use the Swift 6 language mode to compile this package if the compiler supports Swift 6, else use the Swift 5 language mode” (I previously tried passing `-Xswiftc -swift-version -Xswiftc 6` to `swift build` but this seems to then use Swift 6 language mode for compiling not just our own package, but all of our dependencies, which is likely to fail.)
+2. If you try to use `.enableUpcomingFeature` for a feature that is enabled by default in Swift 6, you’ll get an error `error: upcoming feature 'BareSlashRegexLiterals' is already enabled as of Swift version 6`. (I don’t know if there’s a better way of handling this.)
 
 So, we need to make sure we keep `Package.swift` and `Package@swift-6.swift` in sync manually.

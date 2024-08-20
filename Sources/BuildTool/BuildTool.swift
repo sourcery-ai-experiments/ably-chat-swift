@@ -19,14 +19,13 @@ struct BuildAndTestLibrary: AsyncParsableCommand {
     static let configuration = CommandConfiguration(abstract: "Build and test the AblyChat library")
 
     @Option var platform: Platform
-    @Option var swiftVersion: Int
 
     mutating func run() async throws {
         let destinationSpecifier = try await platform.resolve()
         let scheme = "AblyChat"
 
-        try await XcodeRunner.runXcodebuild(action: nil, scheme: scheme, destination: destinationSpecifier, swiftVersion: swiftVersion)
-        try await XcodeRunner.runXcodebuild(action: "test", scheme: scheme, destination: destinationSpecifier, swiftVersion: swiftVersion)
+        try await XcodeRunner.runXcodebuild(action: nil, scheme: scheme, destination: destinationSpecifier)
+        try await XcodeRunner.runXcodebuild(action: "test", scheme: scheme, destination: destinationSpecifier)
     }
 }
 
@@ -40,7 +39,7 @@ struct BuildExampleApp: AsyncParsableCommand {
     mutating func run() async throws {
         let destinationSpecifier = try await platform.resolve()
 
-        try await XcodeRunner.runXcodebuild(action: nil, scheme: "AblyChatExample", destination: destinationSpecifier, swiftVersion: swiftVersion)
+        try await XcodeRunner.runXcodebuild(action: nil, scheme: "AblyChatExample", destination: destinationSpecifier, exampleAppSwiftVersion: swiftVersion)
     }
 }
 
