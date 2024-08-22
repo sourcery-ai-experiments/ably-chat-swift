@@ -45,6 +45,10 @@ let package = Package(
             name: "AblyChatTests",
             dependencies: [
                 "AblyChat",
+                .product(
+                    name: "AsyncAlgorithms",
+                    package: "swift-async-algorithms"
+                ),
             ]
         ),
         .executableTarget(
