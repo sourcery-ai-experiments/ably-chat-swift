@@ -169,11 +169,6 @@ struct Lint: AsyncParsableCommand {
                 }
             }
 
-            var result: [String] = []
-            for try await fileContents in group {
-                result.append(fileContents)
-            }
-
             return try await group.reduce(into: []) { accum, fileContents in
                 accum.append(fileContents)
             }
