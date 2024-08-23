@@ -55,10 +55,10 @@ public struct QueryOptionsWithoutDirection: Sendable {
 public struct MessageSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
     public typealias Element = Message
 
-    var mockAsyncSequence: any AsyncSequence & AsyncIteratorProtocol & Sendable
+    private var mockAsyncSequence: any AsyncSequence & AsyncIteratorProtocol & Sendable
     
-    public init<T: AsyncSequence>(_ mock: T) where T.Element == Element {
-        self.mockAsyncSequence = mock as! any Sendable & AsyncIteratorProtocol & AsyncSequence
+    public init<T: AsyncSequence & AsyncIteratorProtocol & Sendable>(_ mock: T) where T.Element == Element {
+        self.mockAsyncSequence = mock
     }
 
     public func getPreviousMessages(params _: QueryOptionsWithoutDirection) async throws -> any PaginatedResult<Message> {
