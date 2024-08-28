@@ -20,21 +20,21 @@ public struct SendMessageParams: Sendable {
 }
 
 public struct QueryOptions: Sendable {
-    public enum Direction: Sendable {
-        case forwards
-        case backwards
+    public enum ResultOrder: Sendable {
+        case oldestFirst
+        case newestFirst
     }
 
     public var start: Date?
     public var end: Date?
     public var limit: Int?
-    public var direction: Direction?
+    public var orderBy: ResultOrder?
 
-    public init(start: Date? = nil, end: Date? = nil, limit: Int? = nil, direction: QueryOptions.Direction? = nil) {
+    public init(start: Date? = nil, end: Date? = nil, limit: Int? = nil, orderBy: QueryOptions.ResultOrder? = nil) {
         self.start = start
         self.end = end
         self.limit = limit
-        self.direction = direction
+        self.orderBy = orderBy
     }
 }
 
