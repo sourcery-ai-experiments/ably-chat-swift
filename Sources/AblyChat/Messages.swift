@@ -54,21 +54,43 @@ public struct QueryOptionsWithoutDirection: Sendable {
 public struct MessageSubscription: Sendable, AsyncSequence {
     public typealias Element = Message
 
-    public init<T: AsyncSequence>(mockAsyncSequence _: T) where T.Element == Element {
-        fatalError("Not yet implemented")
+    private var subscription: Subscription<Element>
+
+    private var mockGetPreviousMessages: (@Sendable (QueryOptionsWithoutDirection) async throws -> any PaginatedResult<Message>)?
+
+    internal init(bufferingPolicy: BufferingPolicy) {
+        subscription = .init(bufferingPolicy: bufferingPolicy)
     }
 
-    public func getPreviousMessages(params _: QueryOptionsWithoutDirection) async throws -> any PaginatedResult<Message> {
-        fatalError("Not yet implemented")
+    public init<T: AsyncSequence & Sendable>(mockAsyncSequence: T, mockGetPreviousMessages: @escaping @Sendable (QueryOptionsWithoutDirection) async throws -> any PaginatedResult<Message>) where T.Element == Element {
+        subscription = .init(mockAsyncSequence: mockAsyncSequence)
+        self.mockGetPreviousMessages = mockGetPreviousMessages
+    }
+
+    internal func emit(_ element: Element) {
+        subscription.emit(element)
+    }
+
+    public func getPreviousMessages(params: QueryOptionsWithoutDirection) async throws -> any PaginatedResult<Message> {
+        guard let mockImplementation = mockGetPreviousMessages else {
+            fatalError("Not yet implemented")
+        }
+        return try await mockImplementation(params)
     }
 
     public struct AsyncIterator: AsyncIteratorProtocol {
+        private var subscriptionIterator: Subscription<Element>.AsyncIterator
+
+        fileprivate init(subscriptionIterator: Subscription<Element>.AsyncIterator) {
+            self.subscriptionIterator = subscriptionIterator
+        }
+
         public mutating func next() async -> Element? {
-            fatalError("Not implemented")
+            await subscriptionIterator.next()
         }
     }
 
     public func makeAsyncIterator() -> AsyncIterator {
-        fatalError("Not implemented")
+        .init(subscriptionIterator: subscription.makeAsyncIterator())
     }
 }

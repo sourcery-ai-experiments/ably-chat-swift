@@ -26,6 +26,10 @@ let package = Package(
             url: "https://github.com/apple/swift-argument-parser",
             from: "1.5.0"
         ),
+        .package(
+            url: "https://github.com/apple/swift-async-algorithms",
+            from: "1.0.1"
+        ),
     ],
     targets: [
         .target(
@@ -55,6 +59,10 @@ let package = Package(
             name: "AblyChatTests",
             dependencies: [
                 "AblyChat",
+                .product(
+                    name: "AsyncAlgorithms",
+                    package: "swift-async-algorithms"
+                ),
             ]
         ),
         .executableTarget(
@@ -63,6 +71,10 @@ let package = Package(
                 .product(
                     name: "ArgumentParser",
                     package: "swift-argument-parser"
+                ),
+                .product(
+                    name: "AsyncAlgorithms",
+                    package: "swift-async-algorithms"
                 ),
             ],
             swiftSettings: [
