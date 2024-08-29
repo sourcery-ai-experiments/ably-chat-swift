@@ -4,7 +4,7 @@ import SwiftUI
 struct ContentView: View {
     /// Just used to check that we can successfully import and use the AblyChat library. TODO remove this once we start building the library
     @State private var ablyChatClient = DefaultChatClient(
-        realtime: MockRealtime(key: ""),
+        realtime: MockRealtime.create(),
         clientOptions: ClientOptions()
     )
 
