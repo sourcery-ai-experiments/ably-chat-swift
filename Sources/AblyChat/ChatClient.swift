@@ -4,12 +4,14 @@ public protocol ChatClient: AnyObject, Sendable {
     var rooms: any Rooms { get }
     var connection: any Connection { get }
     var clientID: String { get }
-    var realtime: any ARTRealtimeProtocol { get }
+    var realtime: RealtimeClient { get }
     var clientOptions: ClientOptions { get }
 }
 
+public typealias RealtimeClient = any(ARTRealtimeProtocol & Sendable)
+
 public final class DefaultChatClient: ChatClient {
-    public init(realtime _: ARTRealtimeProtocol, clientOptions _: ClientOptions?) {
+    public init(realtime _: RealtimeClient, clientOptions _: ClientOptions?) {
         // This one doesn’t do `fatalError`, so that I can call it in the example app
     }
 
@@ -25,7 +27,7 @@ public final class DefaultChatClient: ChatClient {
         fatalError("Not yet implemented")
     }
 
-    public var realtime: any ARTRealtimeProtocol {
+    public var realtime: RealtimeClient {
         fatalError("Not yet implemented")
     }
 

@@ -1,12 +1,14 @@
 import Ably
 
 /// A mock implementation of `ARTRealtimeProtocol`. It only exists so that we can construct an instance of `DefaultChatClient` without needing to create a proper `ARTRealtime` instance (which we can’t yet do because we don’t have a method for inserting an API key into the example app). TODO remove this once we start building the example app
-class MockRealtime: NSObject, ARTRealtimeProtocol {
+final class MockRealtime: NSObject, ARTRealtimeProtocol, Sendable {
     var device: ARTLocalDevice {
         fatalError("Not implemented")
     }
 
-    var clientId: String?
+    var clientId: String? {
+        fatalError("Not implemented")
+    }
 
     required init(options _: ARTClientOptions) {}
 

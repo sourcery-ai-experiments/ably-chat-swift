@@ -2,12 +2,14 @@ import Ably
 import Foundation
 
 /// A mock implementation of `ARTRealtimeProtocol`. Copied from the class of the same name in the example app. We’ll figure out how to do mocking in tests properly in https://github.com/ably-labs/ably-chat-swift/issues/5.
-class MockRealtime: NSObject, ARTRealtimeProtocol {
+final class MockRealtime: NSObject, ARTRealtimeProtocol, Sendable {
     var device: ARTLocalDevice {
         fatalError("Not implemented")
     }
 
-    var clientId: String?
+    var clientId: String? {
+        fatalError("Not implemented")
+    }
 
     required init(options _: ARTClientOptions) {}
 
