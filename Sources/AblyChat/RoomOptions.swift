@@ -1,6 +1,6 @@
 import Foundation
 
-public struct RoomOptions: Sendable {
+public struct RoomOptions: Sendable, Equatable {
     public var presence: PresenceOptions?
     public var typing: TypingOptions?
     public var reactions: RoomReactionsOptions?
@@ -14,7 +14,7 @@ public struct RoomOptions: Sendable {
     }
 }
 
-public struct PresenceOptions: Sendable {
+public struct PresenceOptions: Sendable, Equatable {
     public var enter = true
     public var subscribe = true
 
@@ -24,7 +24,7 @@ public struct PresenceOptions: Sendable {
     }
 }
 
-public struct TypingOptions: Sendable {
+public struct TypingOptions: Sendable, Equatable {
     public var timeout: TimeInterval = 10
 
     public init(timeout: TimeInterval = 10) {
@@ -32,10 +32,10 @@ public struct TypingOptions: Sendable {
     }
 }
 
-public struct RoomReactionsOptions: Sendable {
+public struct RoomReactionsOptions: Sendable, Equatable {
     public init() {}
 }
 
-public struct OccupancyOptions: Sendable {
+public struct OccupancyOptions: Sendable, Equatable {
     public init() {}
 }
