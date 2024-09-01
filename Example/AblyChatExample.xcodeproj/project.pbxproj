@@ -13,6 +13,9 @@
 		21F09AA22C60CAF00025AF73 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F09AA12C60CAF00025AF73 /* ContentView.swift */; };
 		21F09AA42C60CAF20025AF73 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 21F09AA32C60CAF20025AF73 /* Assets.xcassets */; };
 		21F09AA82C60CAF20025AF73 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 21F09AA72C60CAF20025AF73 /* Preview Assets.xcassets */; };
+		8493935E2C85062A000D7165 /* MockRealtimeChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8493935D2C85062A000D7165 /* MockRealtimeChannel.swift */; };
+		849393602C8507A2000D7165 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8493935F2C8507A2000D7165 /* Misc.swift */; };
+		849D2E982C7BD09D00EC88A5 /* Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849D2E972C7BD09D00EC88A5 /* Mocks.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,9 @@
 		21F09AA32C60CAF20025AF73 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		21F09AA52C60CAF20025AF73 /* AblyChatExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AblyChatExample.entitlements; sourceTree = "<group>"; };
 		21F09AA72C60CAF20025AF73 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		8493935D2C85062A000D7165 /* MockRealtimeChannel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockRealtimeChannel.swift; sourceTree = "<group>"; };
+		8493935F2C8507A2000D7165 /* Misc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
+		849D2E972C7BD09D00EC88A5 /* Mocks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mocks.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +48,9 @@
 			isa = PBXGroup;
 			children = (
 				212F95A62C6CAD9300420287 /* MockRealtime.swift */,
+				8493935D2C85062A000D7165 /* MockRealtimeChannel.swift */,
+				849D2E972C7BD09D00EC88A5 /* Mocks.swift */,
+				8493935F2C8507A2000D7165 /* Misc.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -168,6 +177,9 @@
 				212F95A72C6CAD9300420287 /* MockRealtime.swift in Sources */,
 				21F09AA22C60CAF00025AF73 /* ContentView.swift in Sources */,
 				21F09AA02C60CAF00025AF73 /* AblyChatExampleApp.swift in Sources */,
+				849393602C8507A2000D7165 /* Misc.swift in Sources */,
+				8493935E2C85062A000D7165 /* MockRealtimeChannel.swift in Sources */,
+				849D2E982C7BD09D00EC88A5 /* Mocks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
