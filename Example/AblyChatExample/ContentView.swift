@@ -10,6 +10,7 @@ struct ContentView: View {
     
     @State private var title = "Room: "
     @State private var messages = [Message]()
+    @State private var reactions = ""
     @State private var newMessage = ""
     
     private func room() async -> Room {
@@ -18,7 +19,12 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Text(title).font(.headline)
+            Text(title)
+                .font(.headline)
+                .padding(5)
+            Text(reactions)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(5)
             List(messages, id: \.timeserial) { message in
                 MessageBasicView(message: message)
                     .flip()
@@ -45,15 +51,30 @@ struct ContentView: View {
                     Text("Send")
 #endif
                 }
+                Button(action: {
+                    Task {
+                        try await sendReaction(type: "like")
+                    }
+                }) {
+                    Text("👍")
+                }
             }
             .padding(.bottom, 10)
             .padding(.horizontal, 12)
             .task {
-                let room = await room()
-                title = "Room: \(room.roomID)"
-                for await message in await room.messages.subscribe(bufferingPolicy: .unbounded) {
+                title = await "Room: \(room().roomID)"
+            }
+            .task {
+                for await message in await room().messages.subscribe(bufferingPolicy: .unbounded) {
                     withAnimation {
                         messages.insert(message, at: 0)
+                    }
+                }
+            }
+            .task {
+                for await reaction in await room().reactions.subscribe(bufferingPolicy: .unbounded) {
+                    withAnimation {
+                        reactions.append(reaction.type == "like" ? "👍" : "🤷")
                     }
                 }
             }
@@ -67,6 +88,13 @@ struct ContentView: View {
             messages.insert(message, at: 0)
         }
         newMessage = ""
+    }
+    
+    func sendReaction(type: String) async throws {
+        try await room().reactions.send(params: .init(type: type))
+        withAnimation {
+            reactions.append("👍")
+        }
     }
 }
 
@@ -86,7 +114,6 @@ struct MessageBasicView: View {
                 Spacer()
             }
         }
-        .padding(.leading, 5)
         .listRowSeparator(.hidden)
     }
 }

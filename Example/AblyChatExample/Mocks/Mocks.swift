@@ -55,7 +55,7 @@ actor MockRoom: Room {
     }
 
     nonisolated var reactions: any RoomReactions {
-        fatalError("Not yet implemented")
+        MockRoomReactions(clientID: "AblyTest", roomID: roomID)
     }
 
     nonisolated var typing: any Typing {
@@ -135,6 +135,61 @@ struct MockMessageSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
                        createdAt: Date(),
                        metadata: [:],
                        headers: [:])
+    }
+    
+    public func makeAsyncIterator() -> Self {
+        self
+    }
+}
+
+actor MockRoomReactions: RoomReactions {
+    let clientID: String
+    let roomID: String
+    let channel: RealtimeChannel
+    
+    init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+        self.channel = MockRealtimeChannel()
+    }
+    
+    func send(params: RoomReactionParams) async throws {
+        _ = Reaction(type: "like",
+                     metadata: [:],
+                     headers: [:],
+                     createdAt: Date(),
+                     clientID: clientID,
+                     isSelf: true)
+    }
+    
+    func subscribe(bufferingPolicy: BufferingPolicy) -> Subscription<Reaction> {
+        .init(mockAsyncSequence: MockReactionSubscription(clientID: clientID, roomID: roomID))
+    }
+    
+    func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
+        fatalError("Not yet implemented")
+    }
+}
+
+struct MockReactionSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
+    typealias Element = Reaction
+    
+    let clientID: String
+    let roomID: String
+    
+    public init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+    }
+    
+    public mutating func next() async -> Element? {
+        try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+        return Reaction(type: "like",
+                        metadata: [:],
+                        headers: [:],
+                        createdAt: Date(),
+                        clientID: self.clientID,
+                        isSelf: false)
     }
     
     public func makeAsyncIterator() -> Self {

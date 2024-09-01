@@ -7,5 +7,13 @@ public protocol RoomReactions: AnyObject, Sendable, EmitsDiscontinuities {
 }
 
 public struct RoomReactionParams: Sendable {
-    public init() {}
+    public var type: String
+    public var metadata: ReactionMetadata?
+    public var headers: ReactionHeaders?
+
+    public init(type: String, metadata: ReactionMetadata? = nil, headers: ReactionHeaders? = nil) {
+        self.type = type
+        self.metadata = metadata
+        self.headers = headers
+    }
 }
