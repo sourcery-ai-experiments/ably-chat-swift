@@ -24,6 +24,8 @@ internal actor DefaultRoom: Room {
     // Exposed for testing.
     internal nonisolated let realtime: RealtimeClient
 
+    private let _status = DefaultRoomStatus()
+
     internal init(realtime: RealtimeClient, roomID: String, options: RoomOptions) {
         self.realtime = realtime
         self.roomID = roomID
@@ -50,8 +52,8 @@ internal actor DefaultRoom: Room {
         fatalError("Not yet implemented")
     }
 
-    public nonisolated var status: any RoomStatus {
-        fatalError("Not yet implemented")
+    internal nonisolated var status: any RoomStatus {
+        _status
     }
 
     /// Fetches the channels that contribute to this room.
@@ -69,11 +71,13 @@ internal actor DefaultRoom: Room {
         for channel in channels() {
             try await channel.attachAsync()
         }
+        await _status.transition(to: .attached)
     }
 
     public func detach() async throws {
         for channel in channels() {
             try await channel.detachAsync()
         }
+        await _status.transition(to: .detached)
     }
 }
