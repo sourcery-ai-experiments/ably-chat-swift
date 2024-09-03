@@ -6,7 +6,7 @@ class DefaultRoomsTests: XCTestCase {
     func test_get_returnsRoomWithGivenID() async throws {
         // Given: an instance of DefaultRooms
         let realtime = MockRealtime.create()
-        let rooms = DefaultRooms(realtime: realtime, clientOptions: .init())
+        let rooms = DefaultRooms(realtime: realtime, clientOptions: .init(), logger: TestLogger())
 
         // When: get(roomID:options:) is called
         let roomID = "basketball"
@@ -24,7 +24,7 @@ class DefaultRoomsTests: XCTestCase {
     func test_get_returnsExistingRoomWithGivenID() async throws {
         // Given: an instance of DefaultRooms, on which get(roomID:options:) has already been called with a given ID
         let realtime = MockRealtime.create()
-        let rooms = DefaultRooms(realtime: realtime, clientOptions: .init())
+        let rooms = DefaultRooms(realtime: realtime, clientOptions: .init(), logger: TestLogger())
 
         let roomID = "basketball"
         let options = RoomOptions()
@@ -41,7 +41,7 @@ class DefaultRoomsTests: XCTestCase {
     func test_get_throwsErrorWhenOptionsDoNotMatch() async throws {
         // Given: an instance of DefaultRooms, on which get(roomID:options:) has already been called with a given ID and options
         let realtime = MockRealtime.create()
-        let rooms = DefaultRooms(realtime: realtime, clientOptions: .init())
+        let rooms = DefaultRooms(realtime: realtime, clientOptions: .init(), logger: TestLogger())
 
         let roomID = "basketball"
         let options = RoomOptions()

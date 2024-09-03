@@ -16,7 +16,7 @@ class DefaultRoomTests: XCTestCase {
         ]
         let channels = MockChannels(channels: channelsList)
         let realtime = MockRealtime.create(channels: channels)
-        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init())
+        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init(), logger: TestLogger())
 
         let subscription = await room.status.onChange(bufferingPolicy: .unbounded)
         async let attachedStatusChange = subscription.first { $0.current == .attached }
@@ -53,7 +53,7 @@ class DefaultRoomTests: XCTestCase {
         ]
         let channels = MockChannels(channels: channelsList)
         let realtime = MockRealtime.create(channels: channels)
-        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init())
+        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init(), logger: TestLogger())
 
         // When: `attach` is called on the room
         let roomAttachError: Error?
@@ -82,7 +82,7 @@ class DefaultRoomTests: XCTestCase {
         ]
         let channels = MockChannels(channels: channelsList)
         let realtime = MockRealtime.create(channels: channels)
-        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init())
+        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init(), logger: TestLogger())
 
         let subscription = await room.status.onChange(bufferingPolicy: .unbounded)
         async let detachedStatusChange = subscription.first { $0.current == .detached }
@@ -119,7 +119,7 @@ class DefaultRoomTests: XCTestCase {
         ]
         let channels = MockChannels(channels: channelsList)
         let realtime = MockRealtime.create(channels: channels)
-        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init())
+        let room = DefaultRoom(realtime: realtime, roomID: "basketball", options: .init(), logger: TestLogger())
 
         // When: `detach` is called on the room
         let roomDetachError: Error?

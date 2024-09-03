@@ -14,11 +14,13 @@ public actor DefaultChatClient: ChatClient {
     public let realtime: RealtimeClient
     public nonisolated let clientOptions: ClientOptions
     public nonisolated let rooms: Rooms
+    private let logger: InternalLogger
 
     public init(realtime: RealtimeClient, clientOptions: ClientOptions?) {
         self.realtime = realtime
         self.clientOptions = clientOptions ?? .init()
-        rooms = DefaultRooms(realtime: realtime, clientOptions: self.clientOptions)
+        logger = DefaultInternalLogger(logHandler: self.clientOptions.logHandler, logLevel: self.clientOptions.logLevel)
+        rooms = DefaultRooms(realtime: realtime, clientOptions: self.clientOptions, logger: logger)
     }
 
     public nonisolated var connection: any Connection {
