@@ -7,7 +7,7 @@ enum ProcessRunner {
     // There’s probably a better way to implement these, which doesn’t involve having to use a separate dispatch queue. There’s a proposal for a Subprocess API coming up in Foundation which will marry Process with Swift concurrency.
 
     static func run(executableName: String, arguments: [String]) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, _>) in
             queue.async {
                 let process = Process()
                 process.executableURL = URL(fileURLWithPath: "/usr/bin/env")

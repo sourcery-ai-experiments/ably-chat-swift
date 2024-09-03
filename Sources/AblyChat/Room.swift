@@ -54,11 +54,26 @@ internal actor DefaultRoom: Room {
         fatalError("Not yet implemented")
     }
 
+    /// Fetches the channels that contribute to this room.
+    private func channels() -> [any RealtimeChannelProtocol] {
+        [
+            "chatMessages",
+            "typingIndicators",
+            "reactions",
+        ].map { suffix in
+            realtime.channels.get("\(roomID)::$chat::$\(suffix)")
+        }
+    }
+
     public func attach() async throws {
-        fatalError("Not yet implemented")
+        for channel in channels() {
+            try await channel.attachAsync()
+        }
     }
 
     public func detach() async throws {
-        fatalError("Not yet implemented")
+        for channel in channels() {
+            try await channel.detachAsync()
+        }
     }
 }

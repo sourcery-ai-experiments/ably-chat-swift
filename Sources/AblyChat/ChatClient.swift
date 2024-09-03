@@ -8,7 +8,7 @@ public protocol ChatClient: AnyObject, Sendable {
     var clientOptions: ClientOptions { get }
 }
 
-public typealias RealtimeClient = any(ARTRealtimeProtocol & Sendable)
+public typealias RealtimeClient = any RealtimeClientProtocol
 
 public actor DefaultChatClient: ChatClient {
     public let realtime: RealtimeClient
