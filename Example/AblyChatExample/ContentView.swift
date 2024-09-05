@@ -62,7 +62,7 @@ struct ContentView: View {
             .padding(.bottom, 10)
             .padding(.horizontal, 12)
             .task {
-                title = await "Room: \(room().roomID)"
+                await setDefaultTitle()
             }
             .task {
                 for await message in await room().messages.subscribe(bufferingPolicy: .unbounded) {
@@ -78,7 +78,22 @@ struct ContentView: View {
                     }
                 }
             }
+            .task {
+                for await typing in await room().typing.subscribe(bufferingPolicy: .unbounded) {
+                    withAnimation {
+                        title = "Typing: \(typing.currentlyTyping.joined(separator: ", "))"
+                        Task {
+                            try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                            await setDefaultTitle()
+                        }
+                    }
+                }
+            }
         }
+    }
+    
+    func setDefaultTitle() async {
+        title = await "Room: \(room().roomID)"
     }
     
     func sendMessage() async throws {

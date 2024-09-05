@@ -53,3 +53,24 @@ struct MockReactionSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol 
         self
     }
 }
+
+struct MockTypingSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
+    typealias Element = TypingEvent
+    
+    let clientID: String
+    let roomID: String
+    
+    public init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+    }
+    
+    public mutating func next() async -> Element? {
+        try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+        return TypingEvent(currentlyTyping: ["User1", "User2"])
+    }
+    
+    public func makeAsyncIterator() -> Self {
+        self
+    }
+}

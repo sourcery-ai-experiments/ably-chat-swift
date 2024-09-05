@@ -59,7 +59,7 @@ actor MockRoom: Room {
     }
 
     nonisolated var typing: any Typing {
-        fatalError("Not yet implemented")
+        MockTyping(clientID: "AblyTest", roomID: roomID)
     }
 
     nonisolated var occupancy: any Occupancy {
@@ -137,6 +137,38 @@ actor MockRoomReactions: RoomReactions {
     
     func subscribe(bufferingPolicy: BufferingPolicy) -> Subscription<Reaction> {
         .init(mockAsyncSequence: MockReactionSubscription(clientID: clientID, roomID: roomID))
+    }
+    
+    func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
+        fatalError("Not yet implemented")
+    }
+}
+
+actor MockTyping: Typing {
+    let clientID: String
+    let roomID: String
+    let channel: RealtimeChannel
+    
+    init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+        self.channel = MockRealtimeChannel()
+    }
+    
+    func subscribe(bufferingPolicy: BufferingPolicy) -> Subscription<TypingEvent> {
+        .init(mockAsyncSequence: MockTypingSubscription(clientID: clientID, roomID: roomID))
+    }
+    
+    func get() async throws -> Set<String> {
+        ["User1", "User2"]
+    }
+    
+    func start() async throws {
+        fatalError("Not yet implemented")
+    }
+    
+    func stop() async throws {
+        fatalError("Not yet implemented")
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
