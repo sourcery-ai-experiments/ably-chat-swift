@@ -1,8 +1,9 @@
 import Ably
+import AblyChat
 import Foundation
 
-/// A mock implementation of `ARTRealtimeProtocol`. Copied from the class of the same name in the example app. We’ll figure out how to do mocking in tests properly in https://github.com/ably-labs/ably-chat-swift/issues/5.
-final class MockRealtime: NSObject, ARTRealtimeProtocol, Sendable {
+/// A mock implementation of `ARTRealtimeProtocol`. We’ll figure out how to do mocking in tests properly in https://github.com/ably-labs/ably-chat-swift/issues/5.
+final class MockRealtime: NSObject, RealtimeClientProtocol, Sendable {
     var device: ARTLocalDevice {
         fatalError("Not implemented")
     }
@@ -11,19 +12,31 @@ final class MockRealtime: NSObject, ARTRealtimeProtocol, Sendable {
         fatalError("Not implemented")
     }
 
-    required init(options _: ARTClientOptions) {}
+    required init(options _: ARTClientOptions) {
+        channels = .init(channels: [])
+    }
 
-    required init(key _: String) {}
+    required init(key _: String) {
+        channels = .init(channels: [])
+    }
 
-    required init(token _: String) {}
+    required init(token _: String) {
+        channels = .init(channels: [])
+    }
+
+    init(channels: MockChannels = .init(channels: [])) {
+        self.channels = channels
+    }
+
+    let channels: MockChannels
 
     /**
      Creates an instance of MockRealtime.
 
      This exists to give a convenient way to create an instance, because `init` is marked as unavailable in `ARTRealtimeProtocol`.
      */
-    static func create() -> MockRealtime {
-        MockRealtime(key: "")
+    static func create(channels: MockChannels = MockChannels(channels: [])) -> MockRealtime {
+        MockRealtime(channels: channels)
     }
 
     func time(_: @escaping ARTDateTimeCallback) {
