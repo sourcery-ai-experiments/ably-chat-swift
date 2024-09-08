@@ -9,10 +9,14 @@ import Ably
     extension ARTRealtimeChannels: RealtimeChannelsProtocol, @retroactive @unchecked Sendable {}
 
     extension ARTRealtimeChannel: RealtimeChannelProtocol, @retroactive @unchecked Sendable {}
+
+    extension ARTRealtimePresenceQuery: @retroactive @unchecked Sendable {}
 #else
     extension ARTRealtime: RealtimeClientProtocol, @unchecked Sendable {}
 
     extension ARTRealtimeChannels: RealtimeChannelsProtocol, @unchecked Sendable {}
 
     extension ARTRealtimeChannel: RealtimeChannelProtocol, @unchecked Sendable {}
+
+    extension ARTRealtimePresenceQuery: @unchecked Sendable {}
 #endif
