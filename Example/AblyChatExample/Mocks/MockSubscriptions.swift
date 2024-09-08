@@ -74,3 +74,25 @@ struct MockTypingSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
         self
     }
 }
+
+struct MockPresenceSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
+    typealias Element = PresenceEvent
+    
+    private let members: [String]
+    
+    init(members: [String]) {
+        self.members = members
+    }
+    
+    public mutating func next() async -> Element? {
+        try? await Task.sleep(nanoseconds: 4 * 1_000_000_000)
+        return PresenceEvent(action: [.enter, .leave].randomElement()!,
+                             clientID: members.randomElement()!,
+                             timestamp: Date(),
+                             data: nil)
+    }
+    
+    public func makeAsyncIterator() -> Self {
+        self
+    }
+}

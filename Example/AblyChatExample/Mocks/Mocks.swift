@@ -51,7 +51,7 @@ actor MockRoom: Room {
     }
 
     nonisolated var presence: any Presence {
-        fatalError("Not yet implemented")
+        MockPresence(clientID: "AblyTest", roomID: roomID)
     }
 
     nonisolated var reactions: any RoomReactions {
@@ -169,6 +169,66 @@ actor MockTyping: Typing {
     
     func stop() async throws {
         fatalError("Not yet implemented")
+    }
+    
+    func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
+        fatalError("Not yet implemented")
+    }
+}
+
+actor MockPresence: Presence {
+    let clientID: String
+    let roomID: String
+    
+    private let members = [ "Alice", "Bob", "Charlie", "Dave", "Eve" ]
+    
+    init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+    }
+    
+    func get() async throws -> any PaginatedResult<PresenceMember> {
+        MockPresencePaginatedResult(members: members)
+    }
+    
+    func get(params: ARTRealtimePresenceQuery?) async throws -> any PaginatedResult<PresenceMember> {
+        MockPresencePaginatedResult(members: members)
+    }
+    
+    func isUserPresent(clientID: String) async throws -> Bool {
+        fatalError("Not yet implemented")
+    }
+    
+    func enter() async throws {
+        fatalError("Not yet implemented")
+    }
+    
+    func enter(data: PresenceData) async throws {
+        fatalError("Not yet implemented")
+    }
+    
+    func update() async throws {
+        fatalError("Not yet implemented")
+    }
+    
+    func update(data: PresenceData) async throws {
+        fatalError("Not yet implemented")
+    }
+    
+    func leave() async throws {
+        fatalError("Not yet implemented")
+    }
+    
+    func leave(data: PresenceData) async throws {
+        fatalError("Not yet implemented")
+    }
+    
+    func subscribe(event: PresenceEventType) -> Subscription<PresenceEvent> {
+        .init(mockAsyncSequence: MockPresenceSubscription(members: members))
+    }
+    
+    func subscribe(events: [PresenceEventType]) -> Subscription<PresenceEvent> {
+        .init(mockAsyncSequence: MockPresenceSubscription(members: members))
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {

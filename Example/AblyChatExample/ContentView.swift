@@ -9,7 +9,7 @@ extension MockChatClient {
 struct ContentView: View {
     
     @State private var title = "Room: "
-    @State private var messages = [Message]()
+    @State private var messages = [BasicListItem]()
     @State private var reactions = ""
     @State private var newMessage = ""
     
@@ -25,8 +25,8 @@ struct ContentView: View {
             Text(reactions)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(5)
-            List(messages, id: \.timeserial) { message in
-                MessageBasicView(message: message)
+            List(messages, id: \.id) { item in
+                MessageBasicView(item: item)
                     .flip()
             }
             .flip()
@@ -67,7 +67,7 @@ struct ContentView: View {
             .task {
                 for await message in await room().messages.subscribe(bufferingPolicy: .unbounded) {
                     withAnimation {
-                        messages.insert(message, at: 0)
+                        messages.insert(BasicListItem(id: message.timeserial, title: message.clientID, text: message.text), at: 0)
                     }
                 }
             }
@@ -75,6 +75,13 @@ struct ContentView: View {
                 for await reaction in await room().reactions.subscribe(bufferingPolicy: .unbounded) {
                     withAnimation {
                         reactions.append(reaction.type == "like" ? "👍" : "🤷")
+                    }
+                }
+            }
+            .task {
+                for await event in await room().presence.subscribe(events: [.enter, .leave]) {
+                    withAnimation {
+                        messages.insert(BasicListItem(id: UUID().uuidString, title: "System", text: event.clientID + " \(event.action.displayedText)"), at: 0)
                     }
                 }
             }
@@ -100,7 +107,7 @@ struct ContentView: View {
         guard !newMessage.isEmpty else { return }
         let message = try await room().messages.send(params: .init(text: newMessage))
         withAnimation {
-            messages.insert(message, at: 0)
+            messages.insert(BasicListItem(id: message.timeserial, title: message.clientID, text: message.text), at: 0)
         }
         newMessage = ""
     }
@@ -113,19 +120,25 @@ struct ContentView: View {
     }
 }
 
+struct BasicListItem {
+    var id: String
+    var title: String
+    var text: String
+}
+
 struct MessageBasicView: View {
-    var message: Message
+    var item: BasicListItem
     
     var body: some View {
         HStack {
             VStack {
-                Text("\(message.clientID):")
+                Text("\(item.title):")
                     .foregroundColor(.blue)
                     .bold()
                 Spacer()
             }
             VStack {
-                Text(message.text)
+                Text(item.text)
                 Spacer()
             }
         }
@@ -143,4 +156,20 @@ extension View {
 
 #Preview {
     ContentView()
+}
+
+extension PresenceEventType {
+    
+    var displayedText: String {
+        switch self {
+        case .enter:
+            return "has entered the room"
+        case .leave:
+            return "has left the room"
+        case .present:
+            return "has presented at the room"
+        case .update:
+            return "has updated presence"
+        }
+    }
 }
