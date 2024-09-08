@@ -4,8 +4,8 @@ import Ably
 public typealias PresenceData = any Sendable
 
 public protocol Presence: AnyObject, Sendable, EmitsDiscontinuities {
-    func get() async throws -> any PaginatedResult<[PresenceMember]>
-    func get(params: ARTRealtimePresenceQuery?) async throws -> any PaginatedResult<[PresenceMember]>
+    func get() async throws -> any PaginatedResult<PresenceMember>
+    func get(params: ARTRealtimePresenceQuery?) async throws -> any PaginatedResult<PresenceMember>
     func isUserPresent(clientID: String) async throws -> Bool
     func enter() async throws
     func enter(data: PresenceData) async throws
