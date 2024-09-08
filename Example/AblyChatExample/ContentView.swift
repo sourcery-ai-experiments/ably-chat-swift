@@ -105,10 +105,7 @@ struct ContentView: View {
     
     func sendMessage() async throws {
         guard !newMessage.isEmpty else { return }
-        let message = try await room().messages.send(params: .init(text: newMessage))
-        withAnimation {
-            messages.insert(BasicListItem(id: message.timeserial, title: message.clientID, text: message.text), at: 0)
-        }
+        let _ = try await room().messages.send(params: .init(text: newMessage))
         newMessage = ""
     }
     

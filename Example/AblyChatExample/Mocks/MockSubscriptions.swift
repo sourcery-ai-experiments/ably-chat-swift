@@ -1,30 +1,48 @@
 import Ably
 import AblyChat
 
-struct MockMessageSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
+struct MockMessageSubscription: Sendable, AsyncSequence {
     typealias Element = Message
+    typealias AsyncIterator = AsyncStream<Element>.Iterator
     
     let clientID: String
     let roomID: String
     
-    public init(clientID: String, roomID: String) {
+    private let stream: AsyncStream<Element>
+    private let continuation: AsyncStream<Element>.Continuation
+    
+    func emit(message params: SendMessageParams) -> Message {
+        let message = Message(timeserial: "\(Date().timeIntervalSince1970)",
+                              clientID: clientID,
+                              roomID: roomID,
+                              text: params.text,
+                              createdAt: Date(),
+                              metadata: params.metadata ?? [:],
+                              headers: params.headers ?? [:])
+        continuation.yield(message)
+        return message
+    }
+    
+    func emitMessages() {
+        Task {
+            while (true) {
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                _ = emit(message: SendMessageParams(text: String.randomPhrase()))
+            }
+        }
+    }
+    
+    func makeAsyncIterator() -> AsyncIterator {
+        stream.makeAsyncIterator()
+    }
+    
+    init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
-    }
-    
-    public mutating func next() async -> Element? {
-        try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
-        return Message(timeserial: "\(Date().timeIntervalSince1970)",
-                       clientID: self.clientID,
-                       roomID: self.roomID,
-                       text: String.randomPhrase(),
-                       createdAt: Date(),
-                       metadata: [:],
-                       headers: [:])
-    }
-    
-    public func makeAsyncIterator() -> Self {
-        self
+        let (stream, continuation) = AsyncStream.makeStream(of: Element.self, bufferingPolicy: .unbounded)
+        self.stream = stream
+        self.continuation = continuation
+        emitMessages()
     }
 }
 

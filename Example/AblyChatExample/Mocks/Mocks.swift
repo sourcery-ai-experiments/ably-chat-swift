@@ -23,9 +23,15 @@ actor MockChatClient: ChatClient {
 
 actor MockRooms: Rooms {
     let clientOptions: ClientOptions
+    private var rooms = [String: MockRoom]()
     
     func get(roomID: String, options: RoomOptions) async throws -> any Room {
-        MockRoom(roomID: roomID, options: options)
+        if let room = rooms[roomID] {
+            return room
+        }
+        let room = MockRoom(roomID: roomID, options: options)
+        rooms[roomID] = room
+        return room
     }
     
     func release(roomID: String) async throws {
@@ -46,21 +52,13 @@ actor MockRoom: Room {
         self.options = options
     }
     
-    nonisolated var messages: any Messages {
-        MockMessages(clientID: "AblyTest", roomID: roomID)
-    }
+    lazy nonisolated var messages: any Messages = MockMessages(clientID: "AblyTest", roomID: roomID)
 
-    nonisolated var presence: any Presence {
-        MockPresence(clientID: "AblyTest", roomID: roomID)
-    }
+    lazy nonisolated var presence: any Presence = MockPresence(clientID: "AblyTest", roomID: roomID)
 
-    nonisolated var reactions: any RoomReactions {
-        MockRoomReactions(clientID: "AblyTest", roomID: roomID)
-    }
+    lazy nonisolated var reactions: any RoomReactions = MockRoomReactions(clientID: "AblyTest", roomID: roomID)
 
-    nonisolated var typing: any Typing {
-        MockTyping(clientID: "AblyTest", roomID: roomID)
-    }
+    lazy nonisolated var typing: any Typing = MockTyping(clientID: "AblyTest", roomID: roomID)
 
     nonisolated var occupancy: any Occupancy {
         fatalError("Not yet implemented")
@@ -84,14 +82,17 @@ actor MockMessages: Messages {
     let roomID: String
     let channel: RealtimeChannel
     
+    private var mockSubscription: MockMessageSubscription
+    
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
         self.channel = MockRealtimeChannel()
+        self.mockSubscription = MockMessageSubscription(clientID: clientID, roomID: roomID)
     }
     
     func subscribe(bufferingPolicy: BufferingPolicy) async -> MessageSubscription {
-        MessageSubscription(mockAsyncSequence: MockMessageSubscription(clientID: clientID, roomID: roomID)) {_ in 
+        MessageSubscription(mockAsyncSequence: mockSubscription) {_ in
             MockMessagesPaginatedResult(clientID: self.clientID, roomID: self.roomID)
         }
     }
@@ -101,13 +102,7 @@ actor MockMessages: Messages {
     }
     
     func send(params: SendMessageParams) async throws -> Message {
-        Message(timeserial: "\(Date().timeIntervalSince1970)",
-                clientID: self.clientID,
-                roomID: self.roomID,
-                text: params.text,
-                createdAt: Date(),
-                metadata: [:],
-                headers: [:])
+        mockSubscription.emit(message: params)
     }
     
     func subscribeToDiscontinuities() -> Subscription<ARTErrorInfo> {
