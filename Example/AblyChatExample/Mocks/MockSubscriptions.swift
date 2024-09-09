@@ -11,7 +11,7 @@ struct MockMessageSubscription: Sendable, AsyncSequence {
     private let stream: AsyncStream<Element>
     private let continuation: AsyncStream<Element>.Continuation
     
-    func emit(message params: SendMessageParams) -> Message {
+    func emit(message params: SendMessageParams, clientID: String) -> Message {
         let message = Message(timeserial: "\(Date().timeIntervalSince1970)",
                               clientID: clientID,
                               roomID: roomID,
@@ -27,7 +27,7 @@ struct MockMessageSubscription: Sendable, AsyncSequence {
         Task {
             while (true) {
                 try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
-                _ = emit(message: SendMessageParams(text: MockStrings.randomPhrase()))
+                _ = emit(message: SendMessageParams(text: MockStrings.randomPhrase()), clientID: MockStrings.names.randomElement()!)
             }
         }
     }

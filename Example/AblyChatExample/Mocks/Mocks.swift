@@ -102,7 +102,7 @@ actor MockMessages: Messages {
     }
     
     func send(params: SendMessageParams) async throws -> Message {
-        mockSubscription.emit(message: params)
+        mockSubscription.emit(message: params, clientID: clientID)
     }
     
     func subscribeToDiscontinuities() -> Subscription<ARTErrorInfo> {
