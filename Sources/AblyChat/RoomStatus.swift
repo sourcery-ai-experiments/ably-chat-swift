@@ -37,6 +37,12 @@ internal actor DefaultRoomStatus: RoomStatus {
     // TODO: populate this (https://github.com/ably-labs/ably-chat-swift/issues/28)
     internal private(set) var error: ARTErrorInfo?
 
+    private let logger: InternalLogger
+
+    internal init(logger: InternalLogger) {
+        self.logger = logger
+    }
+
     // TODO: clean up old subscriptions (https://github.com/ably-labs/ably-chat-swift/issues/36)
     private var subscriptions: [Subscription<RoomStatusChange>] = []
 
@@ -48,6 +54,7 @@ internal actor DefaultRoomStatus: RoomStatus {
 
     /// Sets ``current`` to the given state, and emits a status change to all subscribers added via ``onChange(bufferingPolicy:)``.
     internal func transition(to newState: RoomLifecycle) {
+        logger.log(message: "Transitioning to \(newState)", level: .debug)
         let statusChange = RoomStatusChange(current: newState, previous: current)
         current = newState
         for subscription in subscriptions {

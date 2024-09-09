@@ -24,12 +24,15 @@ internal actor DefaultRoom: Room {
     // Exposed for testing.
     internal nonisolated let realtime: RealtimeClient
 
-    private let _status = DefaultRoomStatus()
+    private let _status: DefaultRoomStatus
+    private let logger: InternalLogger
 
-    internal init(realtime: RealtimeClient, roomID: String, options: RoomOptions) {
+    internal init(realtime: RealtimeClient, roomID: String, options: RoomOptions, logger: InternalLogger) {
         self.realtime = realtime
         self.roomID = roomID
         self.options = options
+        self.logger = logger
+        _status = .init(logger: logger)
     }
 
     public nonisolated var messages: any Messages {
@@ -69,14 +72,24 @@ internal actor DefaultRoom: Room {
 
     public func attach() async throws {
         for channel in channels() {
-            try await channel.attachAsync()
+            do {
+                try await channel.attachAsync()
+            } catch {
+                logger.log(message: "Failed to attach channel \(channel), error \(error)", level: .error)
+                throw error
+            }
         }
         await _status.transition(to: .attached)
     }
 
     public func detach() async throws {
         for channel in channels() {
-            try await channel.detachAsync()
+            do {
+                try await channel.detachAsync()
+            } catch {
+                logger.log(message: "Failed to detach channel \(channel), error \(error)", level: .error)
+                throw error
+            }
         }
         await _status.transition(to: .detached)
     }
