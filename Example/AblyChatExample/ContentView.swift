@@ -1,10 +1,6 @@
 import AblyChat
 import SwiftUI
 
-extension MockChatClient {
-    static let shared = MockChatClient(realtime: MockRealtime.create(), clientOptions: .init())
-}
-
 @MainActor
 struct ContentView: View {
     
@@ -13,8 +9,10 @@ struct ContentView: View {
     @State private var reactions = ""
     @State private var newMessage = ""
     
+    private let chatClient: ChatClient = MockChatClient(realtime: MockRealtime.create(), clientOptions: .init())
+    
     private func room() async -> Room {
-        try! await MockChatClient.shared.rooms.get(roomID: "Demo", options: .init())
+        try! await chatClient.rooms.get(roomID: "Demo", options: .init())
     }
     
     var body: some View {
