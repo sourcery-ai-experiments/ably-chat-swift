@@ -26,8 +26,8 @@ struct MockMessageSubscription: Sendable, AsyncSequence {
     func emitMessages() {
         Task {
             while (true) {
-                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
-                _ = emit(message: SendMessageParams(text: String.randomPhrase()))
+                try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+                _ = emit(message: SendMessageParams(text: MockStrings.randomPhrase()))
             }
         }
     }
@@ -46,71 +46,124 @@ struct MockMessageSubscription: Sendable, AsyncSequence {
     }
 }
 
-struct MockReactionSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
+struct MockReactionSubscription: Sendable, AsyncSequence {
     typealias Element = Reaction
+    typealias AsyncIterator = AsyncStream<Element>.Iterator
     
     let clientID: String
     let roomID: String
     
-    public init(clientID: String, roomID: String) {
+    private let stream: AsyncStream<Element>
+    private let continuation: AsyncStream<Element>.Continuation
+    
+    func emit(reaction params: RoomReactionParams) {
+        let reaction = Reaction(type: params.type,
+                               metadata: [:],
+                               headers: [:],
+                               createdAt: Date(),
+                               clientID: self.clientID,
+                               isSelf: false)
+        continuation.yield(reaction)
+    }
+    
+    func emitReactions() {
+        Task {
+            while (true) {
+                try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                emit(reaction: RoomReactionParams(type: ReactionType.allCases.randomElement()!.rawValue))
+            }
+        }
+    }
+    
+    func makeAsyncIterator() -> AsyncIterator {
+        stream.makeAsyncIterator()
+    }
+    
+    init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
-    }
-    
-    public mutating func next() async -> Element? {
-        try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
-        return Reaction(type: "like",
-                        metadata: [:],
-                        headers: [:],
-                        createdAt: Date(),
-                        clientID: self.clientID,
-                        isSelf: false)
-    }
-    
-    public func makeAsyncIterator() -> Self {
-        self
+        let (stream, continuation) = AsyncStream.makeStream(of: Element.self, bufferingPolicy: .unbounded)
+        self.stream = stream
+        self.continuation = continuation
+        emitReactions()
     }
 }
 
-struct MockTypingSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
+struct MockTypingSubscription: Sendable, AsyncSequence {
     typealias Element = TypingEvent
+    typealias AsyncIterator = AsyncStream<Element>.Iterator
     
     let clientID: String
     let roomID: String
     
-    public init(clientID: String, roomID: String) {
+    private let stream: AsyncStream<Element>
+    private let continuation: AsyncStream<Element>.Continuation
+    
+    func emit() {
+        let typing = TypingEvent(currentlyTyping: [MockStrings.names.randomElement()!, MockStrings.names.randomElement()!])
+        continuation.yield(typing)
+    }
+    
+    func emitTypings() {
+        Task {
+            while (true) {
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                emit()
+            }
+        }
+    }
+    
+    func makeAsyncIterator() -> AsyncIterator {
+        stream.makeAsyncIterator()
+    }
+    
+    init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
-    }
-    
-    public mutating func next() async -> Element? {
-        try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
-        return TypingEvent(currentlyTyping: ["User1", "User2"])
-    }
-    
-    public func makeAsyncIterator() -> Self {
-        self
+        let (stream, continuation) = AsyncStream.makeStream(of: Element.self, bufferingPolicy: .unbounded)
+        self.stream = stream
+        self.continuation = continuation
+        emitTypings()
     }
 }
 
-struct MockPresenceSubscription: Sendable, AsyncSequence, AsyncIteratorProtocol {
+struct MockPresenceSubscription: Sendable, AsyncSequence {
     typealias Element = PresenceEvent
+    typealias AsyncIterator = AsyncStream<Element>.Iterator
     
-    private let members: [String]
+    let clientID: String
+    let roomID: String
     
-    init(members: [String]) {
-        self.members = members
+    private let stream: AsyncStream<Element>
+    private let continuation: AsyncStream<Element>.Continuation
+    
+    func emitPresenceEvent() {
+        let presence = PresenceEvent(action: [.enter, .leave].randomElement()!,
+                                     clientID: MockStrings.names.randomElement()!,
+                                     timestamp: Date(),
+                                     data: nil)
+        continuation.yield(presence)
     }
     
-    public mutating func next() async -> Element? {
-        try? await Task.sleep(nanoseconds: 4 * 1_000_000_000)
-        return PresenceEvent(action: [.enter, .leave].randomElement()!,
-                             clientID: members.randomElement()!,
-                             timestamp: Date(),
-                             data: nil)
+    func emitPresenceEvents() {
+        Task {
+            while (true) {
+                try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+                emitPresenceEvent()
+            }
+        }
     }
     
-    public func makeAsyncIterator() -> Self {
-        self
+    func makeAsyncIterator() -> AsyncIterator {
+        stream.makeAsyncIterator()
+    }
+    
+    init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+        let (stream, continuation) = AsyncStream.makeStream(of: Element.self, bufferingPolicy: .unbounded)
+        self.stream = stream
+        self.continuation = continuation
+        emitPresenceEvents()
     }
 }

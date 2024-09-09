@@ -53,10 +53,10 @@ struct ContentView: View {
                 }
                 Button(action: {
                     Task {
-                        try await sendReaction(type: "like")
+                        try await sendReaction(type: ReactionType.like.rawValue)
                     }
                 }) {
-                    Text("👍")
+                    Text(ReactionType.like.emoji)
                 }
             }
             .padding(.bottom, 10)
@@ -74,7 +74,7 @@ struct ContentView: View {
             .task {
                 for await reaction in await room().reactions.subscribe(bufferingPolicy: .unbounded) {
                     withAnimation {
-                        reactions.append(reaction.type == "like" ? "👍" : "🤷")
+                        reactions.append(reaction.displayedText)
                     }
                 }
             }
@@ -111,9 +111,6 @@ struct ContentView: View {
     
     func sendReaction(type: String) async throws {
         try await room().reactions.send(params: .init(type: type))
-        withAnimation {
-            reactions.append("👍")
-        }
     }
 }
 

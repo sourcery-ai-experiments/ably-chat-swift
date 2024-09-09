@@ -115,23 +115,21 @@ actor MockRoomReactions: RoomReactions {
     let roomID: String
     let channel: RealtimeChannel
     
+    private var mockSubscription: MockReactionSubscription
+    
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
         self.channel = MockRealtimeChannel()
+        self.mockSubscription = MockReactionSubscription(clientID: clientID, roomID: roomID)
     }
     
     func send(params: RoomReactionParams) async throws {
-        _ = Reaction(type: "like",
-                     metadata: [:],
-                     headers: [:],
-                     createdAt: Date(),
-                     clientID: clientID,
-                     isSelf: true)
+        mockSubscription.emit(reaction: params)
     }
     
     func subscribe(bufferingPolicy: BufferingPolicy) -> Subscription<Reaction> {
-        .init(mockAsyncSequence: MockReactionSubscription(clientID: clientID, roomID: roomID))
+        .init(mockAsyncSequence: mockSubscription)
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
@@ -155,7 +153,7 @@ actor MockTyping: Typing {
     }
     
     func get() async throws -> Set<String> {
-        ["User1", "User2"]
+        Set(MockStrings.names.prefix(2))
     }
     
     func start() async throws {
@@ -175,19 +173,17 @@ actor MockPresence: Presence {
     let clientID: String
     let roomID: String
     
-    private let members = [ "Alice", "Bob", "Charlie", "Dave", "Eve" ]
-    
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
     }
     
     func get() async throws -> any PaginatedResult<PresenceMember> {
-        MockPresencePaginatedResult(members: members)
+        MockPresencePaginatedResult(members: MockStrings.names)
     }
     
     func get(params: ARTRealtimePresenceQuery?) async throws -> any PaginatedResult<PresenceMember> {
-        MockPresencePaginatedResult(members: members)
+        MockPresencePaginatedResult(members: MockStrings.names)
     }
     
     func isUserPresent(clientID: String) async throws -> Bool {
@@ -219,11 +215,11 @@ actor MockPresence: Presence {
     }
     
     func subscribe(event: PresenceEventType) -> Subscription<PresenceEvent> {
-        .init(mockAsyncSequence: MockPresenceSubscription(members: members))
+        .init(mockAsyncSequence: MockPresenceSubscription(clientID: clientID, roomID: roomID))
     }
     
     func subscribe(events: [PresenceEventType]) -> Subscription<PresenceEvent> {
-        .init(mockAsyncSequence: MockPresenceSubscription(members: members))
+        .init(mockAsyncSequence: MockPresenceSubscription(clientID: clientID, roomID: roomID))
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {

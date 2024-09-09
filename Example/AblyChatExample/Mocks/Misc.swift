@@ -12,7 +12,7 @@ final class MockMessagesPaginatedResult: PaginatedResult {
             Message(timeserial: "\(Date().timeIntervalSince1970)",
                            clientID: self.clientID,
                            roomID: self.roomID,
-                           text: String.randomPhrase(),
+                           text: MockStrings.randomPhrase(),
                            createdAt: Date(),
                            metadata: [:],
                            headers: [:])
@@ -65,7 +65,9 @@ final class MockPresencePaginatedResult: PaginatedResult {
     var current: any PaginatedResult<T> { fatalError("Not implemented") }
 }
 
-extension String {
+class MockStrings {
+    
+    static let names = [ "Alice", "Bob", "Charlie", "Dave", "Eve" ]
     
     static func randomWord(length: Int = Int.random(in: 1...10)) -> String {
         var word = ""
@@ -83,5 +85,33 @@ extension String {
         }
         phrase += Int.random(in: 1...100) % 5 == 0 ? "😆" : ""
         return phrase.count % 33 == 0 ? "Bingo! 😂" : phrase
+    }
+}
+
+enum ReactionType: String, CaseIterable {
+    case like, dislike, lol, rofl, ok, idk
+    
+    var emoji: String {
+        switch self {
+        case .like:
+            return "👍"
+        case .dislike:
+            return "👎"
+        case .lol:
+            return "😆"
+        case .rofl:
+            return "😂"
+        case .ok:
+            return "👌"
+        default:
+            return "🤷‍♀️"
+        }
+    }
+}
+
+extension Reaction {
+    
+    var displayedText: String {
+        ReactionType(rawValue: type)?.emoji ?? ReactionType.idk.emoji
     }
 }
