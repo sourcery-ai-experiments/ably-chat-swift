@@ -99,8 +99,8 @@ struct MockTypingSubscription: Sendable, AsyncSequence {
     private let stream: AsyncStream<Element>
     private let continuation: AsyncStream<Element>.Continuation
     
-    func emit() {
-        let typing = TypingEvent(currentlyTyping: [MockStrings.names.randomElement()!, MockStrings.names.randomElement()!])
+    func emit(names: Set<String>) {
+        let typing = TypingEvent(currentlyTyping: names)
         continuation.yield(typing)
     }
     
@@ -108,7 +108,7 @@ struct MockTypingSubscription: Sendable, AsyncSequence {
         Task {
             while (true) {
                 try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
-                emit()
+                emit(names: [MockStrings.names.randomElement()!, MockStrings.names.randomElement()!])
             }
         }
     }
@@ -137,9 +137,9 @@ struct MockPresenceSubscription: Sendable, AsyncSequence {
     private let stream: AsyncStream<Element>
     private let continuation: AsyncStream<Element>.Continuation
     
-    func emitPresenceEvent() {
-        let presence = PresenceEvent(action: [.enter, .leave].randomElement()!,
-                                     clientID: MockStrings.names.randomElement()!,
+    func emitPresenceEvent(clientID: String, event: PresenceEventType) {
+        let presence = PresenceEvent(action: event,
+                                     clientID: clientID,
                                      timestamp: Date(),
                                      data: nil)
         continuation.yield(presence)
@@ -149,7 +149,7 @@ struct MockPresenceSubscription: Sendable, AsyncSequence {
         Task {
             while (true) {
                 try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
-                emitPresenceEvent()
+                emitPresenceEvent(clientID: MockStrings.names.randomElement()!, event: [.enter, .leave].randomElement()!)
             }
         }
     }
