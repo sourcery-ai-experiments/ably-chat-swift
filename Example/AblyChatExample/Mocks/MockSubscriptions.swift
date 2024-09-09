@@ -1,48 +1,52 @@
 import Ably
 import AblyChat
+import AsyncAlgorithms
 
 struct MockMessageSubscription: Sendable, AsyncSequence {
+    typealias Merged = AsyncMerge2Sequence<AsyncMapSequence<AsyncTimerSequence<ContinuousClock>, Message>, AsyncStream<MockMessageSubscription.Element>>
+
     typealias Element = Message
-    typealias AsyncIterator = AsyncStream<Element>.Iterator
-    
+    typealias AsyncIterator = Merged.AsyncIterator
+
     let clientID: String
     let roomID: String
-    
-    private let stream: AsyncStream<Element>
+
     private let continuation: AsyncStream<Element>.Continuation
-    
-    func emit(message params: SendMessageParams, clientID: String) -> Message {
-        let message = Message(timeserial: "\(Date().timeIntervalSince1970)",
+    private let merged: Merged
+
+    static func createMessage(params: SendMessageParams, roomID: String, clientID: String) -> Message {
+        return Message(timeserial: "\(Date().timeIntervalSince1970)",
                               clientID: clientID,
                               roomID: roomID,
                               text: params.text,
                               createdAt: Date(),
                               metadata: params.metadata ?? [:],
                               headers: params.headers ?? [:])
+    }
+
+    func emit(message params: SendMessageParams, clientID: String) -> Message {
+        let message = MockMessageSubscription.createMessage(params: params, roomID: roomID, clientID: clientID)
         continuation.yield(message)
         return message
     }
-    
-    func emitMessages() {
-        Task {
-            while (true) {
-                try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
-                _ = emit(message: SendMessageParams(text: MockStrings.randomPhrase()), clientID: MockStrings.names.randomElement()!)
-            }
-        }
-    }
-    
+
     func makeAsyncIterator() -> AsyncIterator {
-        stream.makeAsyncIterator()
+        merged.makeAsyncIterator()
     }
     
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
+
+        let timer: AsyncTimerSequence<ContinuousClock> = .init(interval: .seconds(3), clock: .init())
+        let timedMessages = timer.map { _ in
+            MockMessageSubscription.createMessage(params: SendMessageParams(text: MockStrings.randomPhrase()), roomID: roomID, clientID: MockStrings.names.randomElement()!)
+        }
+
         let (stream, continuation) = AsyncStream.makeStream(of: Element.self, bufferingPolicy: .unbounded)
-        self.stream = stream
         self.continuation = continuation
-        emitMessages()
+
+        merged = merge(timedMessages, stream)
     }
 }
 

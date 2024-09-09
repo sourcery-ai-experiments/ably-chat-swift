@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		212F95A72C6CAD9300420287 /* MockRealtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212F95A62C6CAD9300420287 /* MockRealtime.swift */; };
+		214AB85F2C8F89BA00680FAE /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 214AB85E2C8F89BA00680FAE /* AsyncAlgorithms */; };
 		21971DFF2C60D89C0074B8AE /* AblyChat in Frameworks */ = {isa = PBXBuildFile; productRef = 21971DFE2C60D89C0074B8AE /* AblyChat */; };
 		21F09AA02C60CAF00025AF73 /* AblyChatExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F09A9F2C60CAF00025AF73 /* AblyChatExampleApp.swift */; };
 		21F09AA22C60CAF00025AF73 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F09AA12C60CAF00025AF73 /* ContentView.swift */; };
@@ -40,6 +41,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				21971DFF2C60D89C0074B8AE /* AblyChat in Frameworks */,
+				214AB85F2C8F89BA00680FAE /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,6 +124,7 @@
 			name = AblyChatExample;
 			packageProductDependencies = (
 				21971DFE2C60D89C0074B8AE /* AblyChat */,
+				214AB85E2C8F89BA00680FAE /* AsyncAlgorithms */,
 			);
 			productName = AblyChatExample;
 			productReference = 21F09A9C2C60CAF00025AF73 /* AblyChatExample.app */;
@@ -151,6 +154,9 @@
 				Base,
 			);
 			mainGroup = 21F09A932C60CAF00025AF73;
+			packageReferences = (
+				214AB85D2C8F89BA00680FAE /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+			);
 			productRefGroup = 21F09A9D2C60CAF00025AF73 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -413,7 +419,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		214AB85D2C8F89BA00680FAE /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		214AB85E2C8F89BA00680FAE /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 214AB85D2C8F89BA00680FAE /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
 		21971DFE2C60D89C0074B8AE /* AblyChat */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AblyChat;
