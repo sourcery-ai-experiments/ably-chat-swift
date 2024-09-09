@@ -142,14 +142,17 @@ actor MockTyping: Typing {
     let roomID: String
     let channel: RealtimeChannel
     
+    private var mockSubscription: MockTypingSubscription
+    
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
         self.channel = MockRealtimeChannel()
+        self.mockSubscription = MockTypingSubscription(clientID: clientID, roomID: roomID)
     }
     
     func subscribe(bufferingPolicy: BufferingPolicy) -> Subscription<TypingEvent> {
-        .init(mockAsyncSequence: MockTypingSubscription(clientID: clientID, roomID: roomID))
+        .init(mockAsyncSequence: mockSubscription)
     }
     
     func get() async throws -> Set<String> {
@@ -157,11 +160,11 @@ actor MockTyping: Typing {
     }
     
     func start() async throws {
-        fatalError("Not yet implemented")
+        mockSubscription.emit(names: [clientID])
     }
     
     func stop() async throws {
-        fatalError("Not yet implemented")
+        mockSubscription.emit(names: [clientID])
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
@@ -173,9 +176,12 @@ actor MockPresence: Presence {
     let clientID: String
     let roomID: String
     
+    private var mockSubscription: MockPresenceSubscription
+    
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
+        self.mockSubscription = MockPresenceSubscription(clientID: clientID, roomID: roomID)
     }
     
     func get() async throws -> any PaginatedResult<PresenceMember> {
@@ -191,11 +197,11 @@ actor MockPresence: Presence {
     }
     
     func enter() async throws {
-        fatalError("Not yet implemented")
+        mockSubscription.emitPresenceEvent(.enter, clientID: clientID)
     }
     
     func enter(data: PresenceData) async throws {
-        fatalError("Not yet implemented")
+        mockSubscription.emitPresenceEvent(.enter, clientID: clientID)
     }
     
     func update() async throws {
@@ -207,19 +213,19 @@ actor MockPresence: Presence {
     }
     
     func leave() async throws {
-        fatalError("Not yet implemented")
+        mockSubscription.emitPresenceEvent(.leave, clientID: clientID)
     }
     
     func leave(data: PresenceData) async throws {
-        fatalError("Not yet implemented")
+        mockSubscription.emitPresenceEvent(.leave, clientID: clientID)
     }
     
     func subscribe(event: PresenceEventType) -> Subscription<PresenceEvent> {
-        .init(mockAsyncSequence: MockPresenceSubscription(clientID: clientID, roomID: roomID))
+        .init(mockAsyncSequence: mockSubscription)
     }
     
     func subscribe(events: [PresenceEventType]) -> Subscription<PresenceEvent> {
-        .init(mockAsyncSequence: MockPresenceSubscription(clientID: clientID, roomID: roomID))
+        .init(mockAsyncSequence: mockSubscription)
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
