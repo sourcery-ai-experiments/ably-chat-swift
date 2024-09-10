@@ -4,12 +4,15 @@ import SwiftUI
 @MainActor
 struct ContentView: View {
     
+    @State private var chatClient = MockChatClient(
+        realtime: MockRealtime.create(),
+        clientOptions: ClientOptions()
+    )
+    
     @State private var title = "Room: "
     @State private var messages = [BasicListItem]()
     @State private var reactions = ""
     @State private var newMessage = ""
-    
-    private let chatClient: ChatClient = MockChatClient(realtime: MockRealtime.create(), clientOptions: .init())
     
     private func room() async -> Room {
         try! await chatClient.rooms.get(roomID: "Demo", options: .init())
