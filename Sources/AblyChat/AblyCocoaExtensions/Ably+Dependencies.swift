@@ -19,6 +19,4 @@ import Ably
     extension ARTRealtimeChannel: RealtimeChannelProtocol, @unchecked Sendable {}
 
     extension ARTRealtimePresenceQuery: @unchecked Sendable {}
-
-    extension AsyncStream<Message>.Iterator: @unchecked Sendable {}
 #endif
