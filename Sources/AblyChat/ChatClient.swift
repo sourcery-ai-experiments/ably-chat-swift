@@ -10,15 +10,18 @@ public protocol ChatClient: AnyObject, Sendable {
 
 public typealias RealtimeClient = any RealtimeClientProtocol
 
-public actor DefaultChatClient: ChatClient {
+@MainActor
+public class DefaultChatClient: ChatClient {
     public let realtime: RealtimeClient
+    public let rest: ARTRest
     public nonisolated let clientOptions: ClientOptions
     public nonisolated let rooms: Rooms
 
-    public init(realtime: RealtimeClient, clientOptions: ClientOptions?) {
+    public init(realtime: RealtimeClient, rest: ARTRest, clientOptions: ClientOptions?) {
         self.realtime = realtime
         self.clientOptions = clientOptions ?? .init()
-        rooms = DefaultRooms(realtime: realtime, clientOptions: self.clientOptions)
+        self.rest = rest
+        rooms = DefaultRooms(realtime: self.realtime, rest: self.rest, clientOptions: self.clientOptions)
     }
 
     public nonisolated var connection: any Connection {

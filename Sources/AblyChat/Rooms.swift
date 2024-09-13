@@ -9,17 +9,19 @@ public protocol Rooms: AnyObject, Sendable {
 internal actor DefaultRooms: Rooms {
     /// Exposed so that we can test it.
     internal nonisolated let realtime: RealtimeClient
+    internal nonisolated let rest: ARTRest
     internal nonisolated let clientOptions: ClientOptions
 
     /// The set of rooms, keyed by room ID.
     private var rooms: [String: DefaultRoom] = [:]
 
-    internal init(realtime: RealtimeClient, clientOptions: ClientOptions) {
+    internal init(realtime: RealtimeClient, rest: ARTRest, clientOptions: ClientOptions) {
         self.realtime = realtime
         self.clientOptions = clientOptions
+        self.rest = rest
     }
 
-    internal func get(roomID: String, options: RoomOptions) throws -> any Room {
+    internal func get(roomID: String, options: RoomOptions) async throws -> any Room {
         // CHA-RC1b
         if let existingRoom = rooms[roomID] {
             if existingRoom.options != options {
@@ -30,7 +32,10 @@ internal actor DefaultRooms: Rooms {
 
             return existingRoom
         } else {
-            let room = DefaultRoom(realtime: realtime, roomID: roomID, options: options)
+            let room = await DefaultRoom(realtime: realtime, 
+                                         chatAPI: .init(rest: rest, realtime: realtime), 
+                                         roomID: roomID,
+                                         options: options)
             rooms[roomID] = room
             return room
         }

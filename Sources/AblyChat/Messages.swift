@@ -1,10 +1,35 @@
 import Ably
 
+public protocol MessageSubscriptionResponse: Sendable {
+    func unsubscribe() async -> Void
+    func getPreviousMessages() async throws -> any PaginatedResult<Message>
+}
+
+final public class MessageSubscriptionWrapper: Sendable, MessageSubscriptionResponse {
+    let unsubscribeCallback: @Sendable () async -> Void
+    let previousMessageCallback: @Sendable () async throws -> any PaginatedResult<Message>
+    
+    init(unsubscribe: @escaping @Sendable () async -> Void, getPreviousMessages: @escaping @Sendable () async throws -> any PaginatedResult<Message>) {
+        self.unsubscribeCallback = unsubscribe
+        self.previousMessageCallback = getPreviousMessages
+    }
+    
+    public func unsubscribe() async {
+        await unsubscribeCallback()
+    }
+    
+    public func getPreviousMessages() async throws -> any PaginatedResult<Message> {
+        try await previousMessageCallback()
+    }
+}
+
 public protocol Messages: AnyObject, Sendable, EmitsDiscontinuities {
-    func subscribe(bufferingPolicy: BufferingPolicy) -> MessageSubscription
+    func subscribe(bufferingPolicy: BufferingPolicy, listener: MessageEventPayloadWrapper) async throws -> MessageSubscriptionResponse
     func get(options: QueryOptions) async throws -> any PaginatedResult<Message>
     func send(params: SendMessageParams) async throws -> Message
-    var channel: ARTRealtimeChannelProtocol { get }
+//    var channel: RealtimeChannelProtocol? { get }
+    var channel: (any RealtimeChannelProtocol)? { get async }
+
 }
 
 public struct SendMessageParams: Sendable {
@@ -26,15 +51,17 @@ public struct QueryOptions: Sendable {
     }
 
     public var start: Date?
-    public var end: Date?
+    public var end: Int? // represented as timeserial
     public var limit: Int?
     public var orderBy: ResultOrder?
+    public var fromSerial: String?
 
-    public init(start: Date? = nil, end: Date? = nil, limit: Int? = nil, orderBy: QueryOptions.ResultOrder? = nil) {
+    public init(start: Date? = nil, end: Int? = nil, limit: Int? = nil, orderBy: QueryOptions.ResultOrder? = nil, fromSerial: String? = nil) {
         self.start = start
         self.end = end
         self.limit = limit
         self.orderBy = orderBy
+        self.fromSerial = fromSerial
     }
 }
 

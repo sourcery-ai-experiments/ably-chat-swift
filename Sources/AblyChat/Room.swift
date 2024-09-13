@@ -20,18 +20,37 @@ public protocol Room: AnyObject, Sendable {
 internal actor DefaultRoom: Room {
     internal nonisolated let roomID: String
     internal nonisolated let options: RoomOptions
+    private let chatAPI: ChatAPI
+    
+    private let _messages: any Messages
 
     // Exposed for testing.
     internal nonisolated let realtime: RealtimeClient
 
-    internal init(realtime: RealtimeClient, roomID: String, options: RoomOptions) {
+    internal init(realtime: RealtimeClient, chatAPI: ChatAPI, roomID: String, options: RoomOptions) async {
         self.realtime = realtime
         self.roomID = roomID
         self.options = options
+        self.chatAPI = chatAPI
+        
+        self._messages = await DefaultMessages(
+            chatAPI: chatAPI,
+            realtime: realtime,
+            roomID: roomID,
+            clientID: realtime.clientId ?? "")
+        
+        channels()
+//        
+//        do {
+//            try await attach()
+//        }
+//        catch {
+//            print(error.localizedDescription)
+//        }
     }
 
     public nonisolated var messages: any Messages {
-        fatalError("Not yet implemented")
+        self._messages
     }
 
     public nonisolated var presence: any Presence {

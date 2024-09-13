@@ -6,7 +6,7 @@ let package = Package(
     name: "AblyChat",
     platforms: [
         .macOS(.v11),
-        .iOS(.v14),
+        .iOS(.v16),
         .tvOS(.v14),
     ],
     products: [
@@ -52,7 +52,7 @@ let package = Package(
                 // concurrency checking, so I don’t know what kind of impact it
                 // might have; I’ve seen anecdotes that it can make developers’
                 // lives tricky.
-                .enableExperimentalFeature("StrictConcurrency"),
+//                .enableExperimentalFeature("StrictConcurrency"),
             ]
         ),
         .testTarget(
@@ -79,7 +79,7 @@ let package = Package(
             ],
             swiftSettings: [
                 // See justification above.
-                .enableExperimentalFeature("StrictConcurrency"),
+//                .enableExperimentalFeature("StrictConcurrency"),
                 .enableUpcomingFeature("BareSlashRegexLiterals"),
             ]
         ),
