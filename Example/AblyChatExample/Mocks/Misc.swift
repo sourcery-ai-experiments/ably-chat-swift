@@ -35,36 +35,6 @@ final class MockMessagesPaginatedResult: PaginatedResult {
     }
 }
 
-final class MockPresencePaginatedResult: PaginatedResult {
-    typealias T = PresenceMember
-    
-    private let members: [String]
-    
-    init(members: [String]) {
-        self.members = members
-    }
-    
-    var items: [T] {
-        members.map { name in
-            PresenceMember(clientID: name,
-                           data: ["foo": "bar"],
-                           action: .present,
-                           extras: nil,
-                           updatedAt: Date())
-        }
-    }
-    
-    var hasNext: Bool { fatalError("Not implemented") }
-
-    var isLast: Bool { fatalError("Not implemented") }
-
-    var next: (any PaginatedResult<T>)? { fatalError("Not implemented") }
-
-    var first: any PaginatedResult<T> { fatalError("Not implemented") }
-
-    var current: any PaginatedResult<T> { fatalError("Not implemented") }
-}
-
 class MockStrings {
     
     static let names = [ "Alice", "Bob", "Charlie", "Dave", "Eve" ]

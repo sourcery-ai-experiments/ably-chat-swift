@@ -124,7 +124,7 @@ actor MockRoomReactions: RoomReactions {
         self.mockSubscription = MockReactionSubscription(clientID: clientID, roomID: roomID)
     }
     
-    func send(params: RoomReactionParams) async throws {
+    func send(params: SendReactionParams) async throws {
         mockSubscription.emit(reaction: params)
     }
     
@@ -184,12 +184,24 @@ actor MockPresence: Presence {
         self.mockSubscription = MockPresenceSubscription(clientID: clientID, roomID: roomID)
     }
     
-    func get() async throws -> any PaginatedResult<PresenceMember> {
-        MockPresencePaginatedResult(members: MockStrings.names)
+    func get() async throws -> [PresenceMember] {
+        MockStrings.names.map { name in
+            PresenceMember(clientID: name,
+                           data: ["foo": "bar"],
+                           action: .present,
+                           extras: nil,
+                           updatedAt: Date())
+        }
     }
     
-    func get(params: ARTRealtimePresenceQuery?) async throws -> any PaginatedResult<PresenceMember> {
-        MockPresencePaginatedResult(members: MockStrings.names)
+    func get(params: ARTRealtimePresenceQuery?) async throws -> [PresenceMember] {
+        MockStrings.names.map { name in
+            PresenceMember(clientID: name,
+                           data: ["foo": "bar"],
+                           action: .present,
+                           extras: nil,
+                           updatedAt: Date())
+        }
     }
     
     func isUserPresent(clientID: String) async throws -> Bool {

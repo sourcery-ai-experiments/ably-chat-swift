@@ -3,20 +3,20 @@ import XCTest
 
 class DefaultRoomStatusTests: XCTestCase {
     func test_current_startsAsInitialized() async {
-        let status = DefaultRoomStatus()
+        let status = DefaultRoomStatus(logger: TestLogger())
         let current = await status.current
         XCTAssertEqual(current, .initialized)
     }
 
     func test_error_startsAsNil() async {
-        let status = DefaultRoomStatus()
+        let status = DefaultRoomStatus(logger: TestLogger())
         let error = await status.error
         XCTAssertNil(error)
     }
 
     func test_transition() async {
         // Given: A RoomStatus
-        let status = DefaultRoomStatus()
+        let status = DefaultRoomStatus(logger: TestLogger())
         let originalState = await status.current
         let newState = RoomLifecycle.attached // arbitrary
 

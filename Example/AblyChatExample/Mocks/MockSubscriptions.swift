@@ -56,7 +56,7 @@ struct MockReactionSubscription: Sendable, AsyncSequence {
     private let stream: AsyncStream<Element>
     private let continuation: AsyncStream<Element>.Continuation
     
-    func emit(reaction params: RoomReactionParams) {
+    func emit(reaction params: SendReactionParams) {
         let reaction = Reaction(type: params.type,
                                metadata: [:],
                                headers: [:],
@@ -70,7 +70,7 @@ struct MockReactionSubscription: Sendable, AsyncSequence {
         Task {
             while (true) {
                 try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
-                emit(reaction: RoomReactionParams(type: ReactionType.allCases.randomElement()!.rawValue))
+                emit(reaction: SendReactionParams(type: ReactionType.allCases.randomElement()!.rawValue))
             }
         }
     }

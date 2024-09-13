@@ -11,12 +11,15 @@ internal actor DefaultRooms: Rooms {
     internal nonisolated let realtime: RealtimeClient
     internal nonisolated let clientOptions: ClientOptions
 
+    private let logger: InternalLogger
+
     /// The set of rooms, keyed by room ID.
     private var rooms: [String: DefaultRoom] = [:]
 
-    internal init(realtime: RealtimeClient, clientOptions: ClientOptions) {
+    internal init(realtime: RealtimeClient, clientOptions: ClientOptions, logger: InternalLogger) {
         self.realtime = realtime
         self.clientOptions = clientOptions
+        self.logger = logger
     }
 
     internal func get(roomID: String, options: RoomOptions) throws -> any Room {
@@ -30,7 +33,7 @@ internal actor DefaultRooms: Rooms {
 
             return existingRoom
         } else {
-            let room = DefaultRoom(realtime: realtime, roomID: roomID, options: options)
+            let room = DefaultRoom(realtime: realtime, roomID: roomID, options: options, logger: logger)
             rooms[roomID] = room
             return room
         }
