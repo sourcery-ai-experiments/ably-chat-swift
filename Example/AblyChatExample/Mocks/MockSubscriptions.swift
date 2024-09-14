@@ -1,34 +1,30 @@
 import Ably
 import AblyChat
+import AsyncAlgorithms
 
 struct MockSubscription<T: Sendable>: Sendable, AsyncSequence {
     typealias Element = T
-    typealias AsyncIterator = AsyncStream<T>.Iterator
+    typealias AsyncTimerMockSequence = AsyncMapSequence<AsyncTimerSequence<ContinuousClock>, Element>
+    typealias MockMergedSequence = AsyncMerge2Sequence<AsyncStream<Element>, AsyncTimerMockSequence>
+    typealias AsyncIterator = MockMergedSequence.Iterator
     
-    private let stream: AsyncStream<T>
-    private let continuation: AsyncStream<T>.Continuation
+    private let continuation: AsyncStream<Element>.Continuation
+    private let mergedSequence: MockMergedSequence
     
-    func emit(_ object: T) {
+    func emit(_ object: Element) {
         continuation.yield(object)
     }
     
-    func startEmitting(randomElement: @escaping @Sendable () -> T, interval: UInt64) {
-        Task {
-            while (true) {
-                try? await Task.sleep(nanoseconds: interval * 1_000_000_000)
-                emit(randomElement())
-            }
-        }
-    }
-    
     func makeAsyncIterator() -> AsyncIterator {
-        stream.makeAsyncIterator()
+        mergedSequence.makeAsyncIterator()
     }
     
-    init(randomElement: @escaping @Sendable () -> T, interval: UInt64) {
+    init(randomElement: @escaping @Sendable () -> Element, interval: UInt64) {
         let (stream, continuation) = AsyncStream.makeStream(of: Element.self, bufferingPolicy: .unbounded)
-        self.stream = stream
         self.continuation = continuation
-        startEmitting(randomElement: randomElement, interval: interval)
+        let timer: AsyncTimerSequence<ContinuousClock> = .init(interval: .seconds(interval), clock: .init())
+        self.mergedSequence = merge(stream, timer.map { _ in
+            randomElement()
+        })
     }
 }
