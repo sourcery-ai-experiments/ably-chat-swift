@@ -82,25 +82,29 @@ actor MockMessages: Messages {
     let roomID: String
     let channel: RealtimeChannel
     
-    private var mockSubscription: MockSubscription<Message>
+    private var mockSubscription: MockSubscription<Message>!
     
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
         self.channel = MockRealtimeChannel()
-        self.mockSubscription = MockSubscription<Message>(randomElement: {
+    }
+    
+    private func createSubscription() {
+        mockSubscription = MockSubscription<Message>(randomElement: {
             Message(timeserial: "\(Date().timeIntervalSince1970)",
-                                  clientID: MockStrings.names.randomElement()!,
-                                  roomID: roomID,
-                                  text: MockStrings.randomPhrase(),
-                                  createdAt: Date(),
-                                  metadata: [:],
-                                  headers: [:])
+                    clientID: MockStrings.names.randomElement()!,
+                    roomID: self.roomID,
+                    text: MockStrings.randomPhrase(),
+                    createdAt: Date(),
+                    metadata: [:],
+                    headers: [:])
         }, interval: 3)
     }
     
     func subscribe(bufferingPolicy: BufferingPolicy) async -> MessageSubscription {
-        MessageSubscription(mockAsyncSequence: mockSubscription) {_ in
+        createSubscription() // TODO: https://github.com/ably-labs/ably-chat-swift/issues/44
+        return MessageSubscription(mockAsyncSequence: mockSubscription) {_ in
             MockMessagesPaginatedResult(clientID: self.clientID, roomID: self.roomID)
         }
     }
@@ -110,6 +114,9 @@ actor MockMessages: Messages {
     }
     
     func send(params: SendMessageParams) async throws -> Message {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         let message = Message(timeserial: "\(Date().timeIntervalSince1970)",
                               clientID: clientID,
                               roomID: roomID,
@@ -131,23 +138,29 @@ actor MockRoomReactions: RoomReactions {
     let roomID: String
     let channel: RealtimeChannel
     
-    private var mockSubscription: MockSubscription<Reaction>
+    private var mockSubscription: MockSubscription<Reaction>!
     
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
         self.channel = MockRealtimeChannel()
-        self.mockSubscription = MockSubscription<Reaction>(randomElement: {
+    }
+    
+    private func createSubscription() {
+        mockSubscription = MockSubscription<Reaction>(randomElement: {
             Reaction(type: ReactionType.allCases.randomElement()!.rawValue,
                      metadata: [:],
                      headers: [:],
                      createdAt: Date(),
-                     clientID: clientID,
+                     clientID: self.clientID,
                      isSelf: false)
         }, interval: 1)
     }
     
     func send(params: SendReactionParams) async throws {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         let reaction = Reaction(type: params.type,
                                metadata: [:],
                                headers: [:],
@@ -158,7 +171,8 @@ actor MockRoomReactions: RoomReactions {
     }
     
     func subscribe(bufferingPolicy: BufferingPolicy) -> Subscription<Reaction> {
-        .init(mockAsyncSequence: mockSubscription)
+        createSubscription()
+        return .init(mockAsyncSequence: mockSubscription)
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
@@ -171,13 +185,16 @@ actor MockTyping: Typing {
     let roomID: String
     let channel: RealtimeChannel
     
-    private var mockSubscription: MockSubscription<TypingEvent>
+    private var mockSubscription: MockSubscription<TypingEvent>!
     
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
         self.channel = MockRealtimeChannel()
-        self.mockSubscription = MockSubscription<TypingEvent>(randomElement: {
+    }
+    
+    private func createSubscription() {
+        mockSubscription = MockSubscription<TypingEvent>(randomElement: {
             TypingEvent(currentlyTyping: [
                 MockStrings.names.randomElement()!,
                 MockStrings.names.randomElement()!
@@ -186,7 +203,8 @@ actor MockTyping: Typing {
     }
     
     func subscribe(bufferingPolicy: BufferingPolicy) -> Subscription<TypingEvent> {
-        .init(mockAsyncSequence: mockSubscription)
+        createSubscription()
+        return .init(mockAsyncSequence: mockSubscription)
     }
     
     func get() async throws -> Set<String> {
@@ -194,10 +212,16 @@ actor MockTyping: Typing {
     }
     
     func start() async throws {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         mockSubscription.emit(TypingEvent(currentlyTyping: [clientID]))
     }
     
     func stop() async throws {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         mockSubscription.emit(TypingEvent(currentlyTyping: [clientID]))
     }
     
@@ -210,12 +234,15 @@ actor MockPresence: Presence {
     let clientID: String
     let roomID: String
     
-    private var mockSubscription: MockSubscription<PresenceEvent>
+    private var mockSubscription: MockSubscription<PresenceEvent>!
     
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
-        self.mockSubscription = MockSubscription<PresenceEvent>(randomElement: {
+    }
+    
+    private func createSubscription() {
+        mockSubscription = MockSubscription<PresenceEvent>(randomElement: {
             PresenceEvent(action: [.enter, .leave].randomElement()!,
                           clientID: MockStrings.names.randomElement()!,
                           timestamp: Date(),
@@ -248,6 +275,9 @@ actor MockPresence: Presence {
     }
     
     func enter() async throws {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         mockSubscription.emit(PresenceEvent(action: .enter,
                                             clientID: clientID,
                                             timestamp: Date(),
@@ -255,6 +285,9 @@ actor MockPresence: Presence {
     }
     
     func enter(data: PresenceData) async throws {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         mockSubscription.emit(PresenceEvent(action: .enter,
                                             clientID: clientID,
                                             timestamp: Date(),
@@ -270,6 +303,9 @@ actor MockPresence: Presence {
     }
     
     func leave() async throws {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         mockSubscription.emit(PresenceEvent(action: .leave,
                                             clientID: clientID,
                                             timestamp: Date(),
@@ -277,6 +313,9 @@ actor MockPresence: Presence {
     }
     
     func leave(data: PresenceData) async throws {
+        guard let mockSubscription = mockSubscription else {
+            fatalError("Call `subscribe` first.")
+        }
         mockSubscription.emit(PresenceEvent(action: .leave,
                                             clientID: clientID,
                                             timestamp: Date(),
@@ -284,11 +323,13 @@ actor MockPresence: Presence {
     }
     
     func subscribe(event: PresenceEventType) -> Subscription<PresenceEvent> {
-        .init(mockAsyncSequence: mockSubscription)
+        createSubscription()
+        return .init(mockAsyncSequence: mockSubscription)
     }
     
     func subscribe(events: [PresenceEventType]) -> Subscription<PresenceEvent> {
-        .init(mockAsyncSequence: mockSubscription)
+        createSubscription()
+        return .init(mockAsyncSequence: mockSubscription)
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
