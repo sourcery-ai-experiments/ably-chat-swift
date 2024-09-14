@@ -87,7 +87,7 @@ actor MockMessages: Messages {
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
-        self.channel = MockRealtimeChannel()
+        self.channel = MockRealtime.Channel()
     }
     
     private func createSubscription() {
@@ -143,7 +143,7 @@ actor MockRoomReactions: RoomReactions {
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
-        self.channel = MockRealtimeChannel()
+        self.channel = MockRealtime.Channel()
     }
     
     private func createSubscription() {
@@ -190,7 +190,7 @@ actor MockTyping: Typing {
     init(clientID: String, roomID: String) {
         self.clientID = clientID
         self.roomID = roomID
-        self.channel = MockRealtimeChannel()
+        self.channel = MockRealtime.Channel()
     }
     
     private func createSubscription() {
