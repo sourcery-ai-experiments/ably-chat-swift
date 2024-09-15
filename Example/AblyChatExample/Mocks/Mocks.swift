@@ -152,7 +152,7 @@ actor MockRoomReactions: RoomReactions {
                      createdAt: Date(),
                      clientID: self.clientID,
                      isSelf: false)
-        }, interval: 1)
+        }, interval: Double.random(in: 0.1...0.5))
     }
 
     func send(params: SendReactionParams) async throws {
