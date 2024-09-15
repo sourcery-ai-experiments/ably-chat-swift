@@ -18,6 +18,10 @@ struct ContentView: View {
         try! await chatClient.rooms.get(roomID: "Demo", options: .init())
     }
     
+    private var sendTitle: String {
+        newMessage.isEmpty ? ReactionType.like.emoji : "Send"
+    }
+    
     var body: some View {
         VStack {
             Text(title)
@@ -37,71 +41,76 @@ struct ContentView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 
                 Button(action: {
-                    Task {
-                        try await sendMessage()
+                    if newMessage.isEmpty {
+                        Task {
+                            try await sendReaction(type: ReactionType.like.rawValue)
+                        }
+                    } else {
+                        Task {
+                            try await sendMessage()
+                        }
                     }
                 }) {
 #if os(iOS)
-                    Text("Send")
+                    Text(sendTitle)
                         .foregroundColor(.white)
                         .padding(.vertical, 6)
                         .padding(.horizontal, 12)
                         .background(Color.blue)
                         .cornerRadius(15)
 #elseif os(macOS)
-                    Text("Send")
+                    Text(sendTitle)
 #endif
-                }
-                Button(action: {
-                    Task {
-                        try await sendReaction(type: ReactionType.like.rawValue)
-                    }
-                }) {
-                    Text(ReactionType.like.emoji)
                 }
             }
             .padding(.bottom, 10)
             .padding(.horizontal, 12)
-            .task {
-                await setDefaultTitle()
-            }
-            .task {
-                for await message in await room().messages.subscribe(bufferingPolicy: .unbounded) {
-                    withAnimation {
-                        messages.insert(BasicListItem(id: message.timeserial, title: message.clientID, text: message.text), at: 0)
-                    }
-                }
-            }
-            .task {
-                for await reaction in await room().reactions.subscribe(bufferingPolicy: .unbounded) {
-                    withAnimation {
-                        reactions.append(reaction.displayedText)
-                    }
-                }
-            }
-            .task {
-                for await event in await room().presence.subscribe(events: [.enter, .leave]) {
-                    withAnimation {
-                        messages.insert(BasicListItem(id: UUID().uuidString, title: "System", text: event.clientID + " \(event.action.displayedText)"), at: 0)
-                    }
-                }
-            }
-            .task {
-                for await typing in await room().typing.subscribe(bufferingPolicy: .unbounded) {
-                    withAnimation {
-                        title = "Typing: \(typing.currentlyTyping.joined(separator: ", "))"
-                        Task {
-                            try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
-                            await setDefaultTitle()
-                        }
-                    }
-                }
-            }
+            .task { await showMessages() }
+            .task { await showReactions() }
+            .task { await showPresence() }
+            .task { await showTypings() }
+            .task { await setDefaultTitle() }
         }
     }
     
     func setDefaultTitle() async {
         title = await "Room: \(room().roomID)"
+    }
+    
+    func showMessages() async {
+        for await message in await room().messages.subscribe(bufferingPolicy: .unbounded) {
+            withAnimation {
+                messages.insert(BasicListItem(id: message.timeserial, title: message.clientID, text: message.text), at: 0)
+            }
+        }
+    }
+    
+    func showReactions() async {
+        for await reaction in await room().reactions.subscribe(bufferingPolicy: .unbounded) {
+            withAnimation {
+                reactions.append(reaction.displayedText)
+            }
+        }
+    }
+    
+    func showPresence() async {
+        for await event in await room().presence.subscribe(events: [.enter, .leave]) {
+            withAnimation {
+                messages.insert(BasicListItem(id: UUID().uuidString, title: "System", text: event.clientID + " \(event.action.displayedText)"), at: 0)
+            }
+        }
+    }
+    
+    func showTypings() async {
+        for await typing in await room().typing.subscribe(bufferingPolicy: .unbounded) {
+            withAnimation {
+                title = "Typing: \(typing.currentlyTyping.joined(separator: ", "))"
+                Task {
+                    try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                    await setDefaultTitle()
+                }
+            }
+        }
     }
     
     func sendMessage() async throws {
