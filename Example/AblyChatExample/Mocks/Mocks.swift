@@ -44,6 +44,8 @@ actor MockRooms: Rooms {
 }
 
 actor MockRoom: Room {
+    private let clientID = "AblyTest"
+    
     internal nonisolated let roomID: String
     internal nonisolated let options: RoomOptions
     
@@ -52,17 +54,15 @@ actor MockRoom: Room {
         self.options = options
     }
     
-    lazy nonisolated var messages: any Messages = MockMessages(clientID: "AblyTest", roomID: roomID)
+    lazy nonisolated var messages: any Messages = MockMessages(clientID: clientID, roomID: roomID)
 
-    lazy nonisolated var presence: any Presence = MockPresence(clientID: "AblyTest", roomID: roomID)
+    lazy nonisolated var presence: any Presence = MockPresence(clientID: clientID, roomID: roomID)
 
-    lazy nonisolated var reactions: any RoomReactions = MockRoomReactions(clientID: "AblyTest", roomID: roomID)
+    lazy nonisolated var reactions: any RoomReactions = MockRoomReactions(clientID: clientID, roomID: roomID)
 
-    lazy nonisolated var typing: any Typing = MockTyping(clientID: "AblyTest", roomID: roomID)
+    lazy nonisolated var typing: any Typing = MockTyping(clientID: clientID, roomID: roomID)
 
-    nonisolated var occupancy: any Occupancy {
-        fatalError("Not yet implemented")
-    }
+    lazy nonisolated var occupancy: any Occupancy = MockOccupancy(clientID: clientID, roomID: roomID)
 
     nonisolated var status: any RoomStatus {
         fatalError("Not yet implemented")
@@ -330,6 +330,40 @@ actor MockPresence: Presence {
     func subscribe(events: [PresenceEventType]) -> Subscription<PresenceEvent> {
         createSubscription()
         return .init(mockAsyncSequence: mockSubscription)
+    }
+    
+    func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
+        fatalError("Not yet implemented")
+    }
+}
+
+actor MockOccupancy: Occupancy {
+    let clientID: String
+    let roomID: String
+    let channel: RealtimeChannel
+    
+    private var mockSubscription: MockSubscription<OccupancyEvent>!
+    
+    init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+        self.channel = MockRealtime.Channel()
+    }
+    
+    private func createSubscription() {
+        mockSubscription = MockSubscription<OccupancyEvent>(randomElement: {
+            let random = Int.random(in: 1...10)
+            return OccupancyEvent(connections: random, presenceMembers: Int.random(in: 0...random))
+        }, interval: 1)
+    }
+    
+    func subscribe(bufferingPolicy: BufferingPolicy) async -> Subscription<OccupancyEvent> {
+        createSubscription()
+        return .init(mockAsyncSequence: mockSubscription)
+    }
+    
+    func get() async throws -> OccupancyEvent {
+        OccupancyEvent(connections: 10, presenceMembers: 5)
     }
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {

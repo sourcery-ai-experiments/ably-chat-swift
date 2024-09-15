@@ -13,7 +13,9 @@ struct ContentView: View {
     @State private var messages = [BasicListItem]()
     @State private var reactions = ""
     @State private var newMessage = ""
-    
+    @State private var typingInfo = ""
+    @State private var occupancyInfo = "Connections: 0"
+
     private func room() async -> Room {
         try! await chatClient.rooms.get(roomID: "Demo", options: .init())
     }
@@ -27,6 +29,9 @@ struct ContentView: View {
             Text(title)
                 .font(.headline)
                 .padding(5)
+            Text(occupancyInfo)
+                .font(.footnote)
+                .frame(height: 12)
             Text(reactions)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(5)
@@ -63,12 +68,20 @@ struct ContentView: View {
 #endif
                 }
             }
-            .padding(.bottom, 10)
             .padding(.horizontal, 12)
+            HStack {
+                Text(typingInfo)
+                    .font(.footnote)
+                Spacer()
+            }
+            .frame(height: 12)
+            .padding(.horizontal, 14)
+            .padding(.bottom, 5)
             .task { await showMessages() }
             .task { await showReactions() }
             .task { await showPresence() }
             .task { await showTypings() }
+            .task { await showOccupancy() }
             .task { await setDefaultTitle() }
         }
     }
@@ -104,11 +117,21 @@ struct ContentView: View {
     func showTypings() async {
         for await typing in await room().typing.subscribe(bufferingPolicy: .unbounded) {
             withAnimation {
-                title = "Typing: \(typing.currentlyTyping.joined(separator: ", "))"
+                typingInfo = "Typing: \(typing.currentlyTyping.joined(separator: ", "))..."
                 Task {
                     try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
-                    await setDefaultTitle()
+                    withAnimation {
+                        typingInfo = ""
+                    }
                 }
+            }
+        }
+    }
+    
+    func showOccupancy() async {
+        for await event in await room().occupancy.subscribe(bufferingPolicy: .unbounded) {
+            withAnimation {
+                occupancyInfo = "Connections: \(event.presenceMembers) (\(event.connections))"
             }
         }
     }
