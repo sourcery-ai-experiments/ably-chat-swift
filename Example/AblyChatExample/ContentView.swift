@@ -49,7 +49,9 @@ struct ContentView: View {
             .listStyle(PlainListStyle())
             HStack {
                 TextField("Type a message...", text: $newMessage)
+#if !os(tvOS)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+#endif
                 
                 Button(action: {
                     if newMessage.isEmpty {
@@ -69,7 +71,7 @@ struct ContentView: View {
                         .padding(.horizontal, 12)
                         .background(Color.blue)
                         .cornerRadius(15)
-#elseif os(macOS)
+#else
                     Text(sendTitle)
 #endif
                 }
@@ -196,7 +198,9 @@ struct MessageBasicView: View {
                 Spacer()
             }
         }
+#if !os(tvOS)
         .listRowSeparator(.hidden)
+#endif
     }
 }
 
