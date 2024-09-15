@@ -64,10 +64,8 @@ actor MockRoom: Room {
 
     lazy nonisolated var occupancy: any Occupancy = MockOccupancy(clientID: clientID, roomID: roomID)
 
-    nonisolated var status: any RoomStatus {
-        fatalError("Not yet implemented")
-    }
-
+    lazy nonisolated var status: any RoomStatus = MockRoomStatus(clientID: clientID, roomID: roomID)
+    
     func attach() async throws {
         fatalError("Not yet implemented")
     }
@@ -368,5 +366,32 @@ actor MockOccupancy: Occupancy {
     
     func subscribeToDiscontinuities() async -> Subscription<ARTErrorInfo> {
         fatalError("Not yet implemented")
+    }
+}
+
+actor MockRoomStatus: RoomStatus {
+    let clientID: String
+    let roomID: String
+    
+    var current: RoomLifecycle
+    var error: ARTErrorInfo?
+    
+    private var mockSubscription: MockSubscription<RoomStatusChange>!
+    
+    init(clientID: String, roomID: String) {
+        self.clientID = clientID
+        self.roomID = roomID
+        self.current = .initialized
+    }
+    
+    private func createSubscription() {
+        mockSubscription = MockSubscription<RoomStatusChange>(randomElement: {
+            RoomStatusChange(current: [.attached, .attached, .attached, .attached, .attaching, .attaching, .suspended].randomElement()!, previous: .attaching)
+        }, interval: 8)
+    }
+    
+    func onChange(bufferingPolicy: BufferingPolicy) async -> Subscription<RoomStatusChange> {
+        createSubscription()
+        return .init(mockAsyncSequence: mockSubscription)
     }
 }

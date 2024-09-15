@@ -9,12 +9,13 @@ struct ContentView: View {
         clientOptions: ClientOptions()
     )
     
-    @State private var title = "Room: "
+    @State private var title = "Room"
     @State private var messages = [BasicListItem]()
     @State private var reactions = ""
     @State private var newMessage = ""
     @State private var typingInfo = ""
     @State private var occupancyInfo = "Connections: 0"
+    @State private var statusInfo = ""
 
     private func room() async -> Room {
         try! await chatClient.rooms.get(roomID: "Demo", options: .init())
@@ -29,9 +30,14 @@ struct ContentView: View {
             Text(title)
                 .font(.headline)
                 .padding(5)
-            Text(occupancyInfo)
-                .font(.footnote)
-                .frame(height: 12)
+            HStack {
+                Text("")
+                Text(occupancyInfo)
+                Text(statusInfo)
+            }
+            .font(.footnote)
+            .frame(height: 12)
+            .padding(.horizontal, 8)
             Text(reactions)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(5)
@@ -82,12 +88,13 @@ struct ContentView: View {
             .task { await showPresence() }
             .task { await showTypings() }
             .task { await showOccupancy() }
+            .task { await showRoomStatus() }
             .task { await setDefaultTitle() }
         }
     }
     
     func setDefaultTitle() async {
-        title = await "Room: \(room().roomID)"
+        title = await "\(room().roomID)"
     }
     
     func showMessages() async {
@@ -132,6 +139,26 @@ struct ContentView: View {
         for await event in await room().occupancy.subscribe(bufferingPolicy: .unbounded) {
             withAnimation {
                 occupancyInfo = "Connections: \(event.presenceMembers) (\(event.connections))"
+            }
+        }
+    }
+    
+    func showRoomStatus() async {
+        for await status in await room().status.onChange(bufferingPolicy: .unbounded) {
+            withAnimation {
+                if status.current == .attaching {
+                    statusInfo = "\(status.current)...".capitalized
+                } else {
+                    statusInfo = "\(status.current)".capitalized
+                    if status.current == .attached {
+                        Task {
+                            try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                            withAnimation {
+                                statusInfo = ""
+                            }
+                        }
+                    }
+                }
             }
         }
     }
