@@ -19,8 +19,8 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/ably/ably-cocoa",
-            from: "1.2.0"
+            url: "https://github.com/ably/ably-cocoa", branch: "main"
+            
         ),
         .package(
             url: "https://github.com/apple/swift-argument-parser",
@@ -52,7 +52,7 @@ let package = Package(
                 // concurrency checking, so I don’t know what kind of impact it
                 // might have; I’ve seen anecdotes that it can make developers’
                 // lives tricky.
-//                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency"),
             ]
         ),
         .testTarget(
@@ -79,7 +79,7 @@ let package = Package(
             ],
             swiftSettings: [
                 // See justification above.
-//                .enableExperimentalFeature("StrictConcurrency"),
+                .enableExperimentalFeature("StrictConcurrency"),
                 .enableUpcomingFeature("BareSlashRegexLiterals"),
             ]
         ),

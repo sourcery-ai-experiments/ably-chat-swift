@@ -3,7 +3,7 @@ import Ably
 
 public struct MessageEventPayloadWrapper: Hashable, Sendable {
     let id: String
-    let listener: (MessageEventPayload) -> Void
+    let listener: @Sendable (MessageEventPayload) -> Void
 
     // Hashable conformance via the id
     public func hash(into hasher: inout Hasher) {
@@ -14,14 +14,14 @@ public struct MessageEventPayloadWrapper: Hashable, Sendable {
         return lhs.id == rhs.id
     }
     
-    public init(id: String, listener: @escaping (MessageEventPayload) -> Void) {
+    public init(id: String, listener: @Sendable @escaping (MessageEventPayload) -> Void) {
         self.id = id
         self.listener = listener
     }
 }
 
 typealias fromSerial = String
-typealias rando = [MessageEventPayloadWrapper: fromSerial]
+typealias MessageListeners = [MessageEventPayloadWrapper: fromSerial]
 
 
 public struct MessageEventPayload: Sendable, Hashable {
@@ -37,17 +37,13 @@ public struct MessageEventPayload: Sendable, Hashable {
     public let message: Message
 }
 
-//typealias MessageListeners = [UUID: String]
-
-
 
 actor DefaultMessages: Messages, HandlesDiscontinuity {
     private let roomID: String
     internal var channel: (any RealtimeChannelProtocol)?
     private let chatAPI: ChatAPI
     private let clientID: String
-//    private var listenerSubscriptionPoints: MessageListeners = [:]
-    private var listenerSubscriptionPointd: rando = [:]
+    private var listenerSubscriptionPoints: MessageListeners = [:]
 
     private let lock = NSLock()
     private let realtime: RealtimeClient
@@ -66,21 +62,23 @@ actor DefaultMessages: Messages, HandlesDiscontinuity {
     
     private func initChannel() async {
         do {
-            self.channel = try await makeChannel(roomId: roomID, realtime: realtime)
+            for try await channel in makeChannel(roomId: roomID, realtime: realtime) {
+                self.channel = channel
+            }
         } catch {
             fatalError("Failed to create channel: \(error)")
         }
     }
     
     func removeSubscriptionPoint(listener: MessageEventPayloadWrapper) {
-        listenerSubscriptionPointd.removeValue(forKey: listener)
+        listenerSubscriptionPoints.removeValue(forKey: listener)
     }
     
     func subscribe(bufferingPolicy: BufferingPolicy, listener: MessageEventPayloadWrapper) async throws -> MessageSubscriptionResponse {
         let timeSerial = try await resolveSubscriptionStart()
-        listenerSubscriptionPointd[listener] = timeSerial
+        listenerSubscriptionPoints[listener] = timeSerial
         
-        channel?.subscribe("message.created", callback: { message in
+        channel?.subscribe(MessageEvents.created.rawValue, callback: { message in
             Task {
 
                 guard let data = message.data as? Dictionary<String, Any>,
@@ -130,7 +128,7 @@ actor DefaultMessages: Messages, HandlesDiscontinuity {
     }
     
     private func getBeforeSubscriptionStart(listener: MessageEventPayloadWrapper, params: QueryOptions) async throws -> any PaginatedResult<Message> {
-        guard let subscriptionPoint = listenerSubscriptionPointd[listener] else {
+        guard let subscriptionPoint = listenerSubscriptionPoints[listener] else {
             throw ARTErrorInfo.create(
                 withCode: 40000,
                 status: 400,
@@ -152,37 +150,38 @@ actor DefaultMessages: Messages, HandlesDiscontinuity {
         return try await chatAPI.getMessages(roomId: roomID, params: .init(limit: 5))
     }
 
-    // TODO: There's a crash around resuming more than once... likely on .attached happening more than once. Just return after continuation?
-    private func makeChannel(roomId: String, realtime: RealtimeClient) async throws -> (any RealtimeChannelProtocol)? {
-        return try await withCheckedThrowingContinuation { continuation in
+    private func makeChannel(roomId: String, realtime: RealtimeClient) -> AsyncThrowingStream<any RealtimeChannelProtocol, Error> {
 
+        return AsyncThrowingStream { stream in
             channel = getChannel(messagesChannelName(roomId: roomId), realtime: realtime)
-    
-            channel?.on { stateChange in
-                print("State change for channel: \(stateChange.current)")
+            guard let channel else {
+                stream.finish(throwing: ARTErrorInfo.createUnknownError())
+                return
             }
-                        
-            // Handle the case where the channel attaches
-            channel?.on(.attached) { [self] stateChange in
+
+            channel.on(.attached) { [self] stateChange in
                 Task {
                     do {
                         try await handleAttach(fromResume: stateChange.resumed)
-                        continuation.resume(returning: channel) // No need for resume check
+                        stream.yield(channel)
+                        return
                     } catch {
-                        continuation.resume(throwing: error)
+                        stream.finish(throwing: error)
+                        return
                     }
                 }
             }
             
-            // Handle channel updates
-            channel?.on(.update) { [self] stateChange in
+            channel.on(.update) { [self] stateChange in
                 if stateChange.current == .attached && stateChange.previous == .attached {
                     Task {
                         do {
                             try await handleAttach(fromResume: stateChange.resumed)
-                            continuation.resume(returning: channel) // No need for resume check
+                            stream.yield(channel)
+                            return
                         } catch {
-                            continuation.resume(throwing: error)
+                            stream.finish(throwing: error)
+                            return
                         }
                     }
                 }
@@ -198,8 +197,8 @@ actor DefaultMessages: Messages, HandlesDiscontinuity {
         do {
             let newSubscriptionStartResolver = try await self.subscribeAtChannelAttach()
             
-            for listener in listenerSubscriptionPointd.keys {
-                listenerSubscriptionPointd[listener] = newSubscriptionStartResolver
+            for listener in listenerSubscriptionPoints.keys {
+                listenerSubscriptionPoints[listener] = newSubscriptionStartResolver
             }
         } catch {
             throw error
@@ -221,13 +220,12 @@ actor DefaultMessages: Messages, HandlesDiscontinuity {
         return try await subscribeAtChannelAttach()
     }
 
-    // TODO: Need to get correct serial from channel!
     private func getChannelProperties() async throws -> (channel: (any RealtimeChannelProtocol)?, properties: (attachSerial: String?, channelSerial: String?)) {
 
         // Return the channel with the properties as a tuple
         let properties = (
-            attachSerial: "random",// channel?.options?.params?["attachSerial"],
-            channelSerial: "random" //channel?.options?.params?["channelSerial"]
+            attachSerial: channel?.properties.attachSerial,
+            channelSerial: channel?.properties.channelSerial
         )
 
         return (channel, properties)
@@ -255,20 +253,11 @@ actor DefaultMessages: Messages, HandlesDiscontinuity {
                     continuation.resume(throwing: ARTErrorInfo.create(withCode: 40000, status: 400, message: "Channel is attached, but attachSerial is not defined"))
                 }
             }
-            
-            channelWithProperties.channel?.on({ stateChange in
-                print("state change in attach: \(stateChange.current)")
-            })
 
             // Handle failure
             channelWithProperties.channel?.on(.failed) { _ in
                 continuation.resume(throwing: ARTErrorInfo.createUnknownError())
             }
-
-            // Attach the channel
-//            channelWithProperties.channel?.subscribe({ message in
-//                print("got message \(message)")
-//            })
         }
     }
 

@@ -114,7 +114,7 @@ struct ContentView: View {
             try await room?.attach()
 
             let _ = try await room?.messages.subscribe(bufferingPolicy: .unbounded, listener: .init(id: UUID().uuidString, listener: { listener in
-                Task {
+                Task { @MainActor in
                     messages.append(listener.message)
                 }
             }))
