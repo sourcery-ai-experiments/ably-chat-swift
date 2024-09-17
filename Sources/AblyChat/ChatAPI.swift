@@ -87,8 +87,7 @@ final class ChatAPI: Sendable {
         params: [String: String]? = nil,
         body: [String: Any]? = nil
     ) async throws -> any PaginatedResult<RES> {
-        if #available(macOS 13.0.0, *) {
-            return try await withCheckedThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<PaginatedResultWrapper<RES>, _>) in
                 do {
                     try rest.request("GET", path: url, params: params, body: nil, headers: ["protocol": String(apiProtocolVersion)], callback: { paginatedResponse, error  in
                         
@@ -98,15 +97,9 @@ final class ChatAPI: Sendable {
                     continuation.resume(throwing: error)
                 }
             }
-            
-        } else {
-            // Fallback on earlier versions
-            throw ARTErrorInfo.create(withCode: 501, status: 0, message: "Unsupported macOS version")
-        }
     }
 }
 
-@available(macOS 13.0.0, *)
 struct ARTHTTPPaginatedCallbackWrapper<RES: Codable & Sendable> {
     let callback: (ARTHTTPPaginatedResponse?, ARTErrorInfo?)
     
@@ -114,7 +107,7 @@ struct ARTHTTPPaginatedCallbackWrapper<RES: Codable & Sendable> {
         self.callback = callback
     }
     
-    func handleResponse(continuation: CheckedContinuation<any PaginatedResult<RES>, any Error>) {
+    func handleResponse(continuation: CheckedContinuation<PaginatedResultWrapper<RES>, any Error>) {
         if let error = callback.1 {
             continuation.resume(throwing: ARTErrorInfo.create(withCode: error.code, status: error.statusCode, message: error.message))
             return
@@ -161,30 +154,22 @@ public final class PaginatedResultWrapper<T: Codable & Sendable>: PaginatedResul
     /// Asynchronously fetch the next page if available
     public var next: (any PaginatedResult<T>)? {
         get async throws {
-            if #available(macOS 13.0.0, *) {
                 return try await withCheckedThrowingContinuation { continuation in
                     paginatedResponse.next { paginatedResponse, error in
                         ARTHTTPPaginatedCallbackWrapper(callback: (paginatedResponse, error)).handleResponse(continuation: continuation)
                     }
                 }
-            } else {
-                return nil
-            }
         }
     }
     
     /// Asynchronously fetch the first page
     public var first: any PaginatedResult<T> {
         get async throws {
-            if #available(macOS 13.0.0, *) {
                 return try await withCheckedThrowingContinuation { continuation in
                     paginatedResponse.first { paginatedResponse, error in
                         ARTHTTPPaginatedCallbackWrapper(callback: (paginatedResponse, error)).handleResponse(continuation: continuation)
                     }
                 }
-            } else {
-                throw fatalError()
-            }
         }
     }
     
