@@ -70,7 +70,7 @@ struct GenerateMatrices: ParsableCommand {
     mutating func run() throws {
         let tooling = [
             [
-                "xcodeVersion": "15.3",
+                "xcodeVersion": "16",
                 "swiftVersion": 5,
             ],
             [

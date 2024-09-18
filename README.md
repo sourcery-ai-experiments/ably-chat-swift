@@ -13,7 +13,7 @@ This is the repository for the Swift version of the Ably Chat SDK. We aim to bui
 
 ## Requirements
 
-Xcode 15.3 (i.e. a compiler that supports Swift 5.10) or later.
+Xcode 16 (i.e. a compiler that supports Swift 6) or later.
 
 ## Installation
 
