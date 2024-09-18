@@ -90,7 +90,7 @@ jobs:
         run: swift run BuildTool build-and-test-library --platform ${{ matrix.platform }}
 
   check-example-app:
-    name: Example app, ${{matrix.platform}} (Xcode ${{ matrix.tooling.xcodeVersion }}, Swift ${{ matrix.tooling.swiftVersion }})
+    name: Example app, ${{matrix.platform}} (Xcode ${{ matrix.tooling.xcodeVersion }})
     runs-on: macos-latest
     needs: generate-matrices
 
@@ -105,7 +105,7 @@ jobs:
           xcode-version: ${{ matrix.tooling.xcodeVersion }}
 
       - name: Build example app
-        run: swift run BuildTool build-example-app --platform ${{ matrix.platform }} --swift-version ${{ matrix.tooling.swiftVersion }}
+        run: swift run BuildTool build-example-app --platform ${{ matrix.platform }}
 
   # We use this job as a marker that all of the required checks have completed.
   # This allows us to configure a single required status check in our branch

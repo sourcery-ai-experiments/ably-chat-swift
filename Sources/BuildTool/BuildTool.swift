@@ -34,12 +34,11 @@ struct BuildExampleApp: AsyncParsableCommand {
     static let configuration = CommandConfiguration(abstract: "Build the AblyChatExample example app")
 
     @Option var platform: Platform
-    @Option var swiftVersion: Int
 
     mutating func run() async throws {
         let destinationSpecifier = try await platform.resolve()
 
-        try await XcodeRunner.runXcodebuild(action: nil, scheme: "AblyChatExample", destination: destinationSpecifier, exampleAppSwiftVersion: swiftVersion)
+        try await XcodeRunner.runXcodebuild(action: nil, scheme: "AblyChatExample", destination: destinationSpecifier)
     }
 }
 
@@ -60,7 +59,6 @@ struct GenerateMatrices: ParsableCommand {
 
         {
             xcodeVersion: string
-            swiftVersion: number
         }
 
         and PlatformArgument is a value that can be passed as the --platform argument of the build-and-test-library or build-example-app commands.
@@ -71,7 +69,6 @@ struct GenerateMatrices: ParsableCommand {
         let tooling = [
             [
                 "xcodeVersion": "16",
-                "swiftVersion": 6,
             ],
         ]
 
