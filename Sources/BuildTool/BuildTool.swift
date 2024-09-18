@@ -74,7 +74,7 @@ struct GenerateMatrices: ParsableCommand {
                 "swiftVersion": 5,
             ],
             [
-                "xcodeVersion": "16-beta",
+                "xcodeVersion": "16",
                 "swiftVersion": 6,
             ],
         ]
