@@ -1,6 +1,6 @@
 @testable import AblyChat
 import AsyncAlgorithms
-import XCTest
+import Testing
 
 private final class MockPaginatedResult<T>: PaginatedResult {
     var items: [T] { fatalError("Not implemented") }
@@ -18,21 +18,20 @@ private final class MockPaginatedResult<T>: PaginatedResult {
     init() {}
 }
 
-class MessageSubscriptionTests: XCTestCase {
+struct MessageSubscriptionTests {
     let messages = ["First", "Second"].map { text in
         Message(timeserial: "", clientID: "", roomID: "", text: text, createdAt: .init(), metadata: [:], headers: [:])
     }
 
-    func testWithMockAsyncSequence() async {
+    @Test
+    func withMockAsyncSequence() async {
         let subscription = MessageSubscription(mockAsyncSequence: messages.async) { _ in fatalError("Not implemented") }
 
-        async let emittedElements = Array(subscription.prefix(2))
-
-        let awaitedEmittedElements = await emittedElements
-        XCTAssertEqual(awaitedEmittedElements.map(\.text), ["First", "Second"])
+        #expect(await Array(subscription.prefix(2)).map(\.text) == ["First", "Second"])
     }
 
-    func testEmit() async {
+    @Test
+    func emit() async {
         let subscription = MessageSubscription(bufferingPolicy: .unbounded)
 
         async let emittedElements = Array(subscription.prefix(2))
@@ -40,17 +39,17 @@ class MessageSubscriptionTests: XCTestCase {
         subscription.emit(messages[0])
         subscription.emit(messages[1])
 
-        let awaitedEmittedElements = await emittedElements
-        XCTAssertEqual(awaitedEmittedElements.map(\.text), ["First", "Second"])
+        #expect(await emittedElements.map(\.text) == ["First", "Second"])
     }
 
-    func testMockGetPreviousMessages() async throws {
+    @Test
+    func mockGetPreviousMessages() async throws {
         let mockPaginatedResult = MockPaginatedResult<Message>()
         let subscription = MessageSubscription(mockAsyncSequence: [].async) { _ in mockPaginatedResult }
 
         let result = try await subscription.getPreviousMessages(params: .init())
         // This dance is to avoid the compiler error "Runtime support for parameterized protocol types is only available in iOS 16.0.0 or newer" — casting back to a concrete type seems to avoid this
-        let resultAsConcreteType = try XCTUnwrap(result as? MockPaginatedResult<Message>)
-        XCTAssertIdentical(resultAsConcreteType, mockPaginatedResult)
+        let resultAsConcreteType = try #require(result as? MockPaginatedResult<Message>)
+        #expect(resultAsConcreteType === mockPaginatedResult)
     }
 }

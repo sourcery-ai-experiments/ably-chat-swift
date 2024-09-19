@@ -1,9 +1,10 @@
 @testable import AblyChat
-import XCTest
+import Testing
 
-class DefaultRoomsTests: XCTestCase {
+struct DefaultRoomsTests {
     // @spec CHA-RC1a
-    func test_get_returnsRoomWithGivenID() async throws {
+    @Test
+    func get_returnsRoomWithGivenID() async throws {
         // Given: an instance of DefaultRooms
         let realtime = MockRealtime.create()
         let rooms = DefaultRooms(realtime: realtime, clientOptions: .init(), logger: TestLogger())
@@ -14,14 +15,15 @@ class DefaultRoomsTests: XCTestCase {
         let room = try await rooms.get(roomID: roomID, options: options)
 
         // Then: It returns a DefaultRoom instance that uses the same Realtime instance, with the given ID and options
-        let defaultRoom = try XCTUnwrap(room as? DefaultRoom)
-        XCTAssertIdentical(defaultRoom.realtime, realtime)
-        XCTAssertEqual(defaultRoom.roomID, roomID)
-        XCTAssertEqual(defaultRoom.options, options)
+        let defaultRoom = try #require(room as? DefaultRoom)
+        #expect(defaultRoom.realtime === realtime)
+        #expect(defaultRoom.roomID == roomID)
+        #expect(defaultRoom.options == options)
     }
 
     // @spec CHA-RC1b
-    func test_get_returnsExistingRoomWithGivenID() async throws {
+    @Test
+    func get_returnsExistingRoomWithGivenID() async throws {
         // Given: an instance of DefaultRooms, on which get(roomID:options:) has already been called with a given ID
         let realtime = MockRealtime.create()
         let rooms = DefaultRooms(realtime: realtime, clientOptions: .init(), logger: TestLogger())
@@ -34,11 +36,12 @@ class DefaultRoomsTests: XCTestCase {
         let secondRoom = try await rooms.get(roomID: roomID, options: options)
 
         // Then: It returns the same room object
-        XCTAssertIdentical(secondRoom, firstRoom)
+        #expect(secondRoom === firstRoom)
     }
 
     // @spec CHA-RC1c
-    func test_get_throwsErrorWhenOptionsDoNotMatch() async throws {
+    @Test
+    func get_throwsErrorWhenOptionsDoNotMatch() async throws {
         // Given: an instance of DefaultRooms, on which get(roomID:options:) has already been called with a given ID and options
         let realtime = MockRealtime.create()
         let rooms = DefaultRooms(realtime: realtime, clientOptions: .init(), logger: TestLogger())
@@ -59,6 +62,6 @@ class DefaultRoomsTests: XCTestCase {
         }
 
         // Then: It throws an inconsistentRoomOptions error
-        try assertIsChatError(caughtError, withCode: .inconsistentRoomOptions)
+        #expect(isChatError(caughtError, withCode: .inconsistentRoomOptions))
     }
 }
