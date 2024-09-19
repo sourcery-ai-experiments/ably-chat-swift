@@ -1,4 +1,4 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.0
 
 import PackageDescription
 
@@ -39,20 +39,6 @@ let package = Package(
                     name: "Ably",
                     package: "ably-cocoa"
                 ),
-            ],
-            swiftSettings: [
-                // We build with strict concurrency checking enabled, because:
-                //
-                // 1. in theory it’s a useful language feature that reduces
-                //    bugs
-                // 2. it will be unavoidable if we migrate to Swift 6, so let’s
-                //    future-proof ourselves
-                //
-                // This is the first time that I’ll have used strict
-                // concurrency checking, so I don’t know what kind of impact it
-                // might have; I’ve seen anecdotes that it can make developers’
-                // lives tricky.
-                .enableExperimentalFeature("StrictConcurrency"),
             ]
         ),
         .testTarget(
@@ -76,11 +62,6 @@ let package = Package(
                     name: "AsyncAlgorithms",
                     package: "swift-async-algorithms"
                 ),
-            ],
-            swiftSettings: [
-                // See justification above.
-                .enableExperimentalFeature("StrictConcurrency"),
-                .enableUpcomingFeature("BareSlashRegexLiterals"),
             ]
         ),
     ]

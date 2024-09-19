@@ -3,28 +3,20 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		212F95A72C6CAD9300420287 /* MockRealtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212F95A62C6CAD9300420287 /* MockRealtime.swift */; };
 		21971DFF2C60D89C0074B8AE /* AblyChat in Frameworks */ = {isa = PBXBuildFile; productRef = 21971DFE2C60D89C0074B8AE /* AblyChat */; };
-		21F09AA02C60CAF00025AF73 /* AblyChatExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F09A9F2C60CAF00025AF73 /* AblyChatExampleApp.swift */; };
-		21F09AA22C60CAF00025AF73 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F09AA12C60CAF00025AF73 /* ContentView.swift */; };
-		21F09AA42C60CAF20025AF73 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 21F09AA32C60CAF20025AF73 /* Assets.xcassets */; };
-		21F09AA82C60CAF20025AF73 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 21F09AA72C60CAF20025AF73 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		212F95A62C6CAD9300420287 /* MockRealtime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRealtime.swift; sourceTree = "<group>"; };
-		214AA9262C778FB70068FD0A /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		21F09A9C2C60CAF00025AF73 /* AblyChatExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AblyChatExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		21F09A9F2C60CAF00025AF73 /* AblyChatExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AblyChatExampleApp.swift; sourceTree = "<group>"; };
-		21F09AA12C60CAF00025AF73 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		21F09AA32C60CAF20025AF73 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		21F09AA52C60CAF20025AF73 /* AblyChatExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AblyChatExample.entitlements; sourceTree = "<group>"; };
-		21F09AA72C60CAF20025AF73 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		2192E6892C9B633700783BF3 /* AblyChatExample */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AblyChatExample; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		21F09A992C60CAF00025AF73 /* Frameworks */ = {
@@ -38,14 +30,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		212F95A52C6CAD7E00420287 /* Mocks */ = {
-			isa = PBXGroup;
-			children = (
-				212F95A62C6CAD9300420287 /* MockRealtime.swift */,
-			);
-			path = Mocks;
-			sourceTree = "<group>";
-		};
 		21971DFD2C60D89C0074B8AE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -56,7 +40,7 @@
 		21F09A932C60CAF00025AF73 = {
 			isa = PBXGroup;
 			children = (
-				21F09A9E2C60CAF00025AF73 /* AblyChatExample */,
+				2192E6892C9B633700783BF3 /* AblyChatExample */,
 				21F09A9D2C60CAF00025AF73 /* Products */,
 				21971DFD2C60D89C0074B8AE /* Frameworks */,
 			);
@@ -68,28 +52,6 @@
 				21F09A9C2C60CAF00025AF73 /* AblyChatExample.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		21F09A9E2C60CAF00025AF73 /* AblyChatExample */ = {
-			isa = PBXGroup;
-			children = (
-				212F95A52C6CAD7E00420287 /* Mocks */,
-				21F09A9F2C60CAF00025AF73 /* AblyChatExampleApp.swift */,
-				21F09AA12C60CAF00025AF73 /* ContentView.swift */,
-				214AA9262C778FB70068FD0A /* Config.xcconfig */,
-				21F09AA32C60CAF20025AF73 /* Assets.xcassets */,
-				21F09AA52C60CAF20025AF73 /* AblyChatExample.entitlements */,
-				21F09AA62C60CAF20025AF73 /* Preview Content */,
-			);
-			path = AblyChatExample;
-			sourceTree = "<group>";
-		};
-		21F09AA62C60CAF20025AF73 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				21F09AA72C60CAF20025AF73 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -107,6 +69,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				2192E6892C9B633700783BF3 /* AblyChatExample */,
+			);
 			name = AblyChatExample;
 			packageProductDependencies = (
 				21971DFE2C60D89C0074B8AE /* AblyChat */,
@@ -123,7 +88,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					21F09A9B2C60CAF00025AF73 = {
 						CreatedOnToolsVersion = 15.4;
@@ -153,8 +118,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				21F09AA82C60CAF20025AF73 /* Preview Assets.xcassets in Resources */,
-				21F09AA42C60CAF20025AF73 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,9 +128,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				212F95A72C6CAD9300420287 /* MockRealtime.swift in Sources */,
-				21F09AA22C60CAF00025AF73 /* ContentView.swift in Sources */,
-				21F09AA02C60CAF00025AF73 /* AblyChatExampleApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,7 +136,6 @@
 /* Begin XCBuildConfiguration section */
 		21F09AA92C60CAF20025AF73 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 214AA9262C778FB70068FD0A /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -209,6 +168,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -236,12 +196,12 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
 		21F09AAA2C60CAF20025AF73 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 214AA9262C778FB70068FD0A /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -274,6 +234,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -293,6 +254,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -304,6 +266,7 @@
 				CODE_SIGN_ENTITLEMENTS = AblyChatExample/AblyChatExample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"AblyChatExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -343,6 +306,7 @@
 				CODE_SIGN_ENTITLEMENTS = AblyChatExample/AblyChatExample.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"AblyChatExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

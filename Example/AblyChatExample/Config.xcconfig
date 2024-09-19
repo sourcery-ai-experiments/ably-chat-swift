@@ -1,3 +1,0 @@
-// This allows us to specify the Swift version on the command line without affecting the Swift version used for our dependencies (which it appears that specifying SWIFT_VERSION on the command line does).
-EXAMPLE_APP_SWIFT_VERSION = 5.0
-SWIFT_VERSION = $(EXAMPLE_APP_SWIFT_VERSION)

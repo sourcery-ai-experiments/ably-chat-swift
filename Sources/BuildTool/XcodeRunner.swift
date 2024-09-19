@@ -2,7 +2,7 @@ import Foundation
 
 @available(macOS 14, *)
 enum XcodeRunner {
-    static func runXcodebuild(action: String?, scheme: String, destination: DestinationSpecifier, exampleAppSwiftVersion: Int? = nil) async throws {
+    static func runXcodebuild(action: String?, scheme: String, destination: DestinationSpecifier) async throws {
         var arguments: [String] = []
 
         if let action {
@@ -51,12 +51,6 @@ enum XcodeRunner {
          something like modifying the manifest as part of the build process, but
          that seems like a nuisance.)
          */
-
-        if let exampleAppSwiftVersion {
-            arguments.append(
-                "ABLY_EXAMPLE_APP_SWIFT_VERSION=\(exampleAppSwiftVersion)"
-            )
-        }
 
         try await ProcessRunner.run(executableName: "xcodebuild", arguments: arguments)
     }
