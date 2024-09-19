@@ -1,9 +1,10 @@
 import Ably
 @testable import AblyChat
-import XCTest
+import Testing
 
-class DefaultRoomTests: XCTestCase {
-    func test_attach_attachesAllChannels_andSucceedsIfAllSucceed() async throws {
+struct DefaultRoomTests {
+    @Test
+    func attach_attachesAllChannels_andSucceedsIfAllSucceed() async throws {
         // Given: a DefaultRoom instance with ID "basketball", with a Realtime client for which `attach(_:)` completes successfully if called on the following channels:
         //
         //  - basketball::$chat::$chatMessages
@@ -26,19 +27,15 @@ class DefaultRoomTests: XCTestCase {
 
         // Then: `attach(_:)` is called on each of the channels, the room `attach` call succeeds, and the room transitions to ATTACHED
         for channel in channelsList {
-            XCTAssertTrue(channel.attachCallCounter.isNonZero)
+            #expect(channel.attachCallCounter.isNonZero)
         }
 
-        guard let attachedStatusChange = await attachedStatusChange else {
-            XCTFail("Expected status change to ATTACHED but didn't get one")
-            return
-        }
-        let currentStatus = await room.status.current
-        XCTAssertEqual(currentStatus, .attached)
-        XCTAssertEqual(attachedStatusChange.current, .attached)
+        #expect(await room.status.current == .attached)
+        #expect(try #require(await attachedStatusChange).current == .attached)
     }
 
-    func test_attach_attachesAllChannels_andFailsIfOneFails() async throws {
+    @Test
+    func attach_attachesAllChannels_andFailsIfOneFails() async throws {
         // Given: a DefaultRoom instance, with a Realtime client for which `attach(_:)` completes successfully if called on the following channels:
         //
         //   - basketball::$chat::$chatMessages
@@ -65,11 +62,11 @@ class DefaultRoomTests: XCTestCase {
         }
 
         // Then: the room `attach` call fails with the same error as the channel `attach(_:)` call
-        let roomAttachErrorInfo = try XCTUnwrap(roomAttachError as? ARTErrorInfo)
-        XCTAssertIdentical(roomAttachErrorInfo, channelAttachError)
+        #expect(try #require(roomAttachError as? ARTErrorInfo) === channelAttachError)
     }
 
-    func test_detach_detachesAllChannels_andSucceedsIfAllSucceed() async throws {
+    @Test
+    func detach_detachesAllChannels_andSucceedsIfAllSucceed() async throws {
         // Given: a DefaultRoom instance with ID "basketball", with a Realtime client for which `detach(_:)` completes successfully if called on the following channels:
         //
         //  - basketball::$chat::$chatMessages
@@ -92,19 +89,15 @@ class DefaultRoomTests: XCTestCase {
 
         // Then: `detach(_:)` is called on each of the channels, the room `detach` call succeeds, and the room transitions to DETACHED
         for channel in channelsList {
-            XCTAssertTrue(channel.detachCallCounter.isNonZero)
+            #expect(channel.detachCallCounter.isNonZero)
         }
 
-        guard let detachedStatusChange = await detachedStatusChange else {
-            XCTFail("Expected status change to DETACHED but didn't get one")
-            return
-        }
-        let currentStatus = await room.status.current
-        XCTAssertEqual(currentStatus, .detached)
-        XCTAssertEqual(detachedStatusChange.current, .detached)
+        #expect(await room.status.current == .detached)
+        #expect(try #require(await detachedStatusChange).current == .detached)
     }
 
-    func test_detach_detachesAllChannels_andFailsIfOneFails() async throws {
+    @Test
+    func detach_detachesAllChannels_andFailsIfOneFails() async throws {
         // Given: a DefaultRoom instance, with a Realtime client for which `detach(_:)` completes successfully if called on the following channels:
         //
         //   - basketball::$chat::$chatMessages
@@ -131,7 +124,6 @@ class DefaultRoomTests: XCTestCase {
         }
 
         // Then: the room `detach` call fails with the same error as the channel `detach(_:)` call
-        let roomDetachErrorInfo = try XCTUnwrap(roomDetachError as? ARTErrorInfo)
-        XCTAssertIdentical(roomDetachErrorInfo, channelDetachError)
+        #expect(try #require(roomDetachError as? ARTErrorInfo) === channelDetachError)
     }
 }

@@ -1,20 +1,21 @@
 @testable import AblyChat
-import XCTest
+import Testing
 
-class DefaultRoomStatusTests: XCTestCase {
-    func test_current_startsAsInitialized() async {
+struct DefaultRoomStatusTests {
+    @Test
+    func current_startsAsInitialized() async {
         let status = DefaultRoomStatus(logger: TestLogger())
-        let current = await status.current
-        XCTAssertEqual(current, .initialized)
+        #expect(await status.current == .initialized)
     }
 
-    func test_error_startsAsNil() async {
+    @Test()
+    func error_startsAsNil() async {
         let status = DefaultRoomStatus(logger: TestLogger())
-        let error = await status.error
-        XCTAssertNil(error)
+        #expect(await status.error == nil)
     }
 
-    func test_transition() async {
+    @Test
+    func transition() async throws {
         // Given: A RoomStatus
         let status = DefaultRoomStatus(logger: TestLogger())
         let originalState = await status.current
@@ -30,17 +31,11 @@ class DefaultRoomStatusTests: XCTestCase {
         await status.transition(to: newState)
 
         // Then: It emits a status change to all subscribers added via onChange(bufferingPolicy:), and updates its `current` property to the new state
-        guard let statusChange1 = await statusChange1, let statusChange2 = await statusChange2 else {
-            XCTFail("Expected status changes to be emitted")
-            return
+        for statusChange in try await [#require(statusChange1), #require(statusChange2)] {
+            #expect(statusChange.previous == originalState)
+            #expect(statusChange.current == newState)
         }
 
-        for statusChange in [statusChange1, statusChange2] {
-            XCTAssertEqual(statusChange.previous, originalState)
-            XCTAssertEqual(statusChange.current, newState)
-        }
-
-        let current = await status.current
-        XCTAssertEqual(current, .attached)
+        #expect(await status.current == .attached)
     }
 }

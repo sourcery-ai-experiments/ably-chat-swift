@@ -1,15 +1,17 @@
 @testable import AblyChat
-import XCTest
+import Testing
 
-class DefaultInternalLoggerTests: XCTestCase {
-    func test_defaults() {
+struct DefaultInternalLoggerTests {
+    @Test
+    func defaults() {
         let logger = DefaultInternalLogger(logHandler: nil, logLevel: nil)
 
-        XCTAssertTrue(logger.logHandler is DefaultLogHandler)
-        XCTAssertEqual(logger.logLevel, .error)
+        #expect(logger.logHandler is DefaultLogHandler)
+        #expect(logger.logLevel == .error)
     }
 
-    func test_log() throws {
+    @Test
+    func log() throws {
         // Given: A DefaultInternalLogger instance
         let logHandler = MockLogHandler()
         let logger = DefaultInternalLogger(logHandler: logHandler, logLevel: nil)
@@ -22,13 +24,14 @@ class DefaultInternalLoggerTests: XCTestCase {
         )
 
         // Then: It calls log(…) on the underlying logger, interpolating the code location into the message and passing through the level
-        let logArguments = try XCTUnwrap(logHandler.logArguments)
-        XCTAssertEqual(logArguments.message, "(Ably/Room.swift:123) Hello")
-        XCTAssertEqual(logArguments.level, .error)
-        XCTAssertNil(logArguments.context)
+        let logArguments = try #require(logHandler.logArguments)
+        #expect(logArguments.message == "(Ably/Room.swift:123) Hello")
+        #expect(logArguments.level == .error)
+        #expect(logArguments.context == nil)
     }
 
-    func test_log_whenLogLevelArgumentIsLessSevereThanLogLevelProperty_itDoesNotLog() {
+    @Test
+    func log_whenLogLevelArgumentIsLessSevereThanLogLevelProperty_itDoesNotLog() {
         // Given: A DefaultInternalLogger instance
         let logHandler = MockLogHandler()
         let logger = DefaultInternalLogger(
@@ -44,6 +47,6 @@ class DefaultInternalLoggerTests: XCTestCase {
         )
 
         // Then: It does not call `log(…)` on the underlying logger
-        XCTAssertNil(logHandler.logArguments)
+        #expect(logHandler.logArguments == nil)
     }
 }
