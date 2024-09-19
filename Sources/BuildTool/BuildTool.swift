@@ -83,7 +83,7 @@ struct GenerateMatrices: ParsableCommand {
         ]
 
         // I’m assuming the JSONSerialization output has no newlines
-        let keyValue = try "matrix=\(String(decoding: JSONSerialization.data(withJSONObject: matrix), as: UTF8.self))"
+        let keyValue = try "matrix=\(String(data: JSONSerialization.data(withJSONObject: matrix), encoding: .utf8))"
         fputs("\(keyValue)\n", stderr)
         print(keyValue)
     }
@@ -173,6 +173,6 @@ struct Lint: AsyncParsableCommand {
 
     private func loadUTF8StringFromFile(at path: String) async throws -> String {
         let (data, _) = try await URLSession.shared.data(from: .init(filePath: path))
-        return String(decoding: data, as: UTF8.self)
+        return try String(data: data, encoding: .utf8)
     }
 }
