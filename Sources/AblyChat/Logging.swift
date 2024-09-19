@@ -65,14 +65,14 @@ internal final class DefaultInternalLogger: InternalLogger {
 
 /// The logging backend used by ``DefaultInternalLogHandler`` if the user has not provided their own. Uses Swift’s `Logger` type for logging.
 internal final class DefaultLogHandler: LogHandler {
+    private let logger = Logger()
+
     internal func log(message: String, level: LogLevel, context _: LogContext?) {
         guard let osLogType = level.toOSLogType else {
             // Treating .silent as meaning "don’t log it", will figure out the meaning of .silent in https://github.com/ably-labs/ably-chat-swift/issues/8
             return
         }
 
-        // TODO: revisit in Xcode 16, where Logger is Sendable (https://github.com/ably-labs/ably-chat-swift/issues/40)
-        let logger = Logger()
         logger.log(level: osLogType, "\(message)")
     }
 }
