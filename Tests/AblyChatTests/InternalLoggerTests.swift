@@ -1,17 +1,18 @@
 @testable import AblyChat
-import XCTest
+import Testing
 
-class InternalLoggerTests: XCTestCase {
-    func test_protocolExtension_logMessage_defaultArguments_populatesFileIDAndLine() throws {
+struct InternalLoggerTests {
+    @Test
+    func protocolExtension_logMessage_defaultArguments_populatesFileIDAndLine() throws {
         let logger = MockInternalLogger()
 
         let expectedLine = #line + 1
         logger.log(message: "Here is a message", level: .info)
 
-        let receivedArguments = try XCTUnwrap(logger.logArguments)
+        let receivedArguments = try #require(logger.logArguments)
 
-        XCTAssertEqual(receivedArguments.level, .info)
-        XCTAssertEqual(receivedArguments.message, "Here is a message")
-        XCTAssertEqual(receivedArguments.codeLocation, .init(fileID: #fileID, line: expectedLine))
+        #expect(receivedArguments.level == .info)
+        #expect(receivedArguments.message == "Here is a message")
+        #expect(receivedArguments.codeLocation == .init(fileID: #fileID, line: expectedLine))
     }
 }
