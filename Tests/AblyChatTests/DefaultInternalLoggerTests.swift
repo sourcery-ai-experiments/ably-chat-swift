@@ -6,8 +6,8 @@ struct DefaultInternalLoggerTests {
     func defaults() {
         let logger = DefaultInternalLogger(logHandler: nil, logLevel: nil)
 
-        #expect(logger.logHandler is DefaultLogHandler)
-        #expect(logger.logLevel == .error)
+        #expect(logger.testsOnly_logHandler is DefaultLogHandler)
+        #expect(logger.testsOnly_logLevel == .error)
     }
 
     @Test

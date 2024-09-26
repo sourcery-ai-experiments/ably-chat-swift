@@ -16,7 +16,7 @@ struct DefaultRoomsTests {
 
         // Then: It returns a DefaultRoom instance that uses the same Realtime instance, with the given ID and options
         let defaultRoom = try #require(room as? DefaultRoom)
-        #expect(defaultRoom.realtime === realtime)
+        #expect(defaultRoom.testsOnly_realtime === realtime)
         #expect(defaultRoom.roomID == roomID)
         #expect(defaultRoom.options == options)
     }

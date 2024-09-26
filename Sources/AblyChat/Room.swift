@@ -22,7 +22,13 @@ internal actor DefaultRoom: Room {
     internal nonisolated let options: RoomOptions
 
     // Exposed for testing.
-    internal nonisolated let realtime: RealtimeClient
+    private nonisolated let realtime: RealtimeClient
+
+    #if DEBUG
+        internal nonisolated var testsOnly_realtime: RealtimeClient {
+            realtime
+        }
+    #endif
 
     private let _status: DefaultRoomStatus
     private let logger: InternalLogger
