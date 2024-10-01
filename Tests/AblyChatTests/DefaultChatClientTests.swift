@@ -23,7 +23,7 @@ struct DefaultChatClientTests {
         let rooms = client.rooms
 
         let defaultRooms = try #require(rooms as? DefaultRooms)
-        #expect(defaultRooms.realtime === realtime)
+        #expect(defaultRooms.testsOnly_realtime === realtime)
         #expect(defaultRooms.clientOptions.isEqualForTestPurposes(options))
     }
 }

@@ -44,9 +44,21 @@ extension InternalLogger {
 }
 
 internal final class DefaultInternalLogger: InternalLogger {
-    // Exposed for testing.
-    internal let logHandler: LogHandler
-    internal let logLevel: LogLevel
+    private let logHandler: LogHandler
+
+    #if DEBUG
+        internal var testsOnly_logHandler: LogHandler {
+            logHandler
+        }
+    #endif
+
+    private let logLevel: LogLevel
+
+    #if DEBUG
+        internal var testsOnly_logLevel: LogLevel {
+            logLevel
+        }
+    #endif
 
     internal init(logHandler: LogHandler?, logLevel: LogLevel?) {
         self.logHandler = logHandler ?? DefaultLogHandler()

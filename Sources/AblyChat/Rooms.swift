@@ -7,8 +7,14 @@ public protocol Rooms: AnyObject, Sendable {
 }
 
 internal actor DefaultRooms: Rooms {
-    /// Exposed so that we can test it.
-    internal nonisolated let realtime: RealtimeClient
+    private nonisolated let realtime: RealtimeClient
+
+    #if DEBUG
+        internal nonisolated var testsOnly_realtime: RealtimeClient {
+            realtime
+        }
+    #endif
+
     internal nonisolated let clientOptions: ClientOptions
 
     private let logger: InternalLogger
